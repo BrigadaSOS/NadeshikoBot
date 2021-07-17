@@ -1,8 +1,8 @@
 {
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/bot.js",
-    "dev": "nodemon ./src/bot.js"
+    "start": "node ./index.js",
+    "dev": "nodemon ./index.js"
   },
   "dependencies": {
     "@discordjs/opus": "^0.5.3",
