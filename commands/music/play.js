@@ -40,6 +40,7 @@ module.exports = {
 
       } catch (error) {
         message.reply('Video no válido.');
+        console.log(error)
       }
         
     }
