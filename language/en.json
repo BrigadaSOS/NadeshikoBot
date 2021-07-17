@@ -1,0 +1,19 @@
+{
+  "help": {
+    "title_embed": "Command list",
+    "tweet_description": "Displays a random tweet from a Twitter user.",
+    "purge_description": "Delete a number of messages from a channel.",
+    "scan_description": "Extract text from a provided image using text recognition (OCR) with an image.",
+    "avatar_description": "Get the avatar of yourself or another user.",
+    "ping_description": "Displays information about the latency between an user and the bot.",
+    "language_description": "Change the language of Nadeshiko."
+  },
+  "tweet": {
+    "aa": "aa"
+  },
+  "language":{
+    "title_embed": "Language configuration",
+    "available_lang_text": "Available languages: ",
+    "result_language": "The language has been changed to "
+  }
+}
