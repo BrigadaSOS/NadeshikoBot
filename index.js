@@ -66,8 +66,8 @@ client.on("ready", () => {
   });
 });
 
-const job = schedule.scheduleJob('18 * * * *', async function(){
-  const attachment1 = new Discord.MessageAttachment("./out_of_touch.mp4"); // create an attachment from a URL
+const job = schedule.scheduleJob({hour: 6, minute: 30, dayOfWeek: 3}, async function(){
+  const attachment1 = new Discord.MessageAttachment("./assets/out_of_touch.mp4"); // create an attachment from a URL
   await client.channels.cache.get('796869756908732438').send({ files: [attachment1] });
   await client.channels.cache.get('796869756908732438').send("¡Feliz jueves!");
 });
