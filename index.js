@@ -1,22 +1,32 @@
 // Required Variables Config
-const { Client } = require("discord.js");
+const { Client, Collection } = require("discord.js");
 const Discord = require("discord.js");
 const client = new Client({
-  intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "DIRECT_MESSAGES"],
+  intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "DIRECT_MESSAGES","GUILD_INVITES"],
   partials: ["MESSAGE", "REACTION", "CHANNEL", "USER"],
 });
+
 require("dotenv").config();
-const { prefix } = require("./config.json");
-const { join } = require("path");
 const path = require("path");
 const schedule = require('node-schedule');
 
+const { prefix } = require("./config.json");
 const i18n = require("i18n");
 
-// Variables Command Handler
 const fs = require("fs");
-client.commands = new Discord.Collection();
 const commandFolders = fs.readdirSync("./commands");
+
+// Slash Commands config
+module.exports = client;
+client.commands = new Discord.Collection();
+client.slashCommands = new Collection();
+require("./handler")(client);
+
+const job = schedule.scheduleJob({hour: 6, minute: 30, dayOfWeek: 3}, async function(){
+  const attachment1 = new Discord.MessageAttachment("./assets/out_of_touch.mp4"); // create an attachment from a URL
+  await client.channels.cache.get('796869756908732438').send({ files: [attachment1] });
+  await client.channels.cache.get('796869756908732438').send("¡Feliz jueves!");
+});
 
 // Get commands by file in their folder
 for (const folder of commandFolders) {
@@ -55,21 +65,6 @@ client.on("messageCreate", (message) => {
   } catch (error) {
     console.error(error);
   }
-});
-
-// Status from Bot
-client.on("ready", () => {
-  client.user.setStatus("dnd");
-  console.log(`${client.user.tag} ha iniciado sesión.`);
-  client.user.setActivity(prefix + "help", {
-    type: "LISTENING",
-  });
-});
-
-const job = schedule.scheduleJob({hour: 6, minute: 30, dayOfWeek: 3}, async function(){
-  const attachment1 = new Discord.MessageAttachment("./assets/out_of_touch.mp4"); // create an attachment from a URL
-  await client.channels.cache.get('796869756908732438').send({ files: [attachment1] });
-  await client.channels.cache.get('796869756908732438').send("¡Feliz jueves!");
 });
 
 // Language config Bot

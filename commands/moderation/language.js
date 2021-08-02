@@ -14,7 +14,7 @@ module.exports = {
     LANGUAGE = config["language"];
     const i18n = require("i18n");
     i18n.setLocale(LANGUAGE);
-
+  
     var languageEmbed = new Discord.MessageEmbed()
       .setTitle(i18n.__("language.title_embed"))
       .setColor("#e791d0");
