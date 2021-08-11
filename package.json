@@ -16,11 +16,12 @@
     "html-entities": "^2.3.2",
     "i18n": "^0.13.3",
     "image-downloader": "^4.0.3",
+    "line-by-line": "^0.1.6",
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.12",
-    "puppeteer": "^10.1.0",
+    "puppeteer": "^10.2.0",
     "twitter-api-v2": "^1.2.0",
     "vndb-api": "^1.0.3",
-    "ytdl-core": "^4.9.0"
+    "ytdl-core": "^4.9.1"
   }
 }

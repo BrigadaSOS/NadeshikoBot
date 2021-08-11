@@ -12,7 +12,7 @@ client.on("interactionCreate", async (interaction) => {
     
     console.log(`${interaction.user.tag} in #${interaction.channel.name} triggered an interaction: ${interaction.commandName}.`);
 
-    const args =[];
+    const args = [];
     interaction.options.data.map((x) => {
         args.push(x.value);
     });
