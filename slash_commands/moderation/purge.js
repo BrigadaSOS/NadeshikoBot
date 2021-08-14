@@ -23,7 +23,7 @@ module.exports = {
 			id_user = member.replace(/\D/g, '');
 			try {
 				userObject = await client.users.fetch(id_user);
-			  } catch (error) {
+			} catch (error) {
 				return interaction.editReply('El valor ingresado no es un usuario.');
 			}
 			const message = await interaction.fetchReply();
@@ -31,7 +31,7 @@ module.exports = {
 
 			const userMessages = (await messages).filter((m) => m.author.id === userObject.id);
 			await message.channel.bulkDelete(userMessages);
-			interaction.editReply(`Los mensajes de ${userObject} han sido eliminados.`)
+			interaction.editReply(`Los mensajes de ${userObject} han sido eliminados.`);
 		}else{
 			if (isNaN(amount)) {
 				return interaction.editReply('Número no valido.');

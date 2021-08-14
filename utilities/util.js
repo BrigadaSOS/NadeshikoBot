@@ -1,4 +1,4 @@
-const {decode} = require('html-entities');
+const { decode } = require('html-entities');
 
 module.exports = class Util {
 
@@ -17,4 +17,4 @@ static cleanAnilistHTML(html, removeLineBreaks = true) {
     return clean;
     
     }      
-}
+};

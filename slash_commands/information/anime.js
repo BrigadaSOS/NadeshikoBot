@@ -1,8 +1,8 @@
 const { stripIndents } = require('common-tags');
-const { cleanAnilistHTML } = require('../../utils/util');
+const { cleanAnilistHTML } = require('../../utilities/util');
 
 const Discord = require('discord.js');
-const deepl = require('../../utils/translateService');
+const deepl = require('../../utilities/translateDeepL');
 
 const searchGraphQL = stripIndents`
 	query ($search: String, $type: MediaType, $isAdult: Boolean) {

@@ -106,7 +106,6 @@ async function gatherTweets(client, username, interaction) {
             new Discord.MessageEmbed()
                 .setDescription(content_tweet)
                 .setColor('#1da1f2')
-                .addField('[Enlace al tweet](https://discohook.app/discord)', '', true)
                 .setURL('https://www.google.com')
                 .setImage(media_objects[embed_item][2]),
             );
@@ -118,7 +117,6 @@ async function gatherTweets(client, username, interaction) {
             new Discord.MessageEmbed()
             .setDescription(content_tweet)
             .setColor('#1da1f2')
-            .addField('[Enlace al tweet](https://discohook.app/discord)', 'Yo', true)
             .setURL('https://www.google.com')
             ,
         );
@@ -178,7 +176,7 @@ async function sendWebhook(channel, text) {
         const webhooks = await channel.fetchWebhooks();
 		const webhook = webhooks.first();
         await webhook.send({
-            content: '`Requested Video ->`' + hider + text,
+            content: '`Video obtenido:`' + hider + text,
             username: name_user,
             avatarURL: url_avatar,
         });

@@ -9,10 +9,7 @@ module.exports = {
     async function quickstart() {
       // Imports the Google Cloud client library
       const vision = require('@google-cloud/vision');
-      const credentials = require('../../credentials-google.json');
-      const { DH_UNABLE_TO_CHECK_GENERATOR } = require('constants');
-      const { url } = require('inspector');
-      const { load } = require('dotenv');
+      const credentials = require('../credentials-google.json');
 
       // Creates a client for API Vision
       const clientVision = new vision.ImageAnnotatorClient({

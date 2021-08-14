@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const deepl = require('../../utils/translateService');
+const deepl = require('../../utilities/translateDeepL');
 
 const duration = {
 	5: 'Muy largo (>50 horas)',
@@ -65,6 +65,7 @@ module.exports = {
 				title_related += `[${response.items[0].relations[i].title}](https://vndb.org/v${response.items[0].relations[i].id})\n`;
 			}
 		}
+		// eslint-disable-next-line prefer-const
 		let embed = new Discord.MessageEmbed()
 			.setColor('e791d0')
 			.setAuthor('VNDB', '', 'https://vndb.org/')

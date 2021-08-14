@@ -1,5 +1,5 @@
-const { glob } = require("glob");
-const { promisify } = require("util");
+const { glob } = require('glob');
+const { promisify } = require('util');
 const globPromise = promisify(glob);
 
 module.exports = async (client) => {
@@ -7,7 +7,7 @@ module.exports = async (client) => {
     const commandFiles = await globPromise(`${process.cwd()}/commands/**/*.js`);
     commandFiles.map((value) => {
         const file = require(value);
-        const splitted = value.split("/");
+        const splitted = value.split('/');
         const directory = splitted[splitted.length - 2];
 
         if (file.name) {
@@ -21,7 +21,7 @@ module.exports = async (client) => {
     eventFiles.map((value) => require(value));
 
     // Slash Commands
-    const slashCommands = await globPromise(`${process.cwd()}/SlashCommands/*/*.js`);
+    const slashCommands = await globPromise(`${process.cwd()}/slash_commands/*/*.js`);
     
     const arrayOfSlashCommands = [];
 
@@ -33,13 +33,13 @@ module.exports = async (client) => {
         arrayOfSlashCommands.push(file);
     });
 
-    client.on("ready", async () =>{        
+    client.on('ready', async () =>{        
         await client.guilds.cache
-            .get("861638009769426944")
+            .get('861638009769426944')
             .commands.set(arrayOfSlashCommands);
 
         await client.guilds.cache
-            .get("795683075212312636")
+            .get('795683075212312636')
             .commands.set(arrayOfSlashCommands);
     });
 };

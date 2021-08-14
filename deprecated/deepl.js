@@ -1,8 +1,8 @@
-const deepl = require('../../utils/translateService');
+const deepl = require('../utils/translateService');
 
 module.exports = {
     name: 'deepl',
-    description: 'Download a video from Youtube',
+    description: 'Translate a sentences with DeepL',
     options: [
       {
       name: 'deepl',

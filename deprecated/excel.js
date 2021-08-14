@@ -1,9 +1,9 @@
-const deepl = require('../../utils/translateService');
+const deepl = require('../utils/translateService');
 
 module.exports = {
 	name: 'excel',
 	description: 'Nothing',
-	run: async (client, interaction, args) => {
+	run: async () => {
         array = [];
         finalArray = [];
         contador = 0;

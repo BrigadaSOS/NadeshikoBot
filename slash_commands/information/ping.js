@@ -4,7 +4,7 @@ module.exports = {
 
 	run: async (client, interaction) => {
 		const message = await interaction.fetchReply();
-		interaction.editReply(
-			`Latencia del bot: ${message.createdTimestamp - interaction.createdTimestamp}ms.\nLatencia API: ${Math.round(interaction.client.ws.ping)}ms.`);
+
+		interaction.editReply(`Latencia del bot: ${message.createdTimestamp - interaction.createdTimestamp}ms.\nLatencia API: ${Math.round(interaction.client.ws.ping)}ms.`);
 	},
 };
