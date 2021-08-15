@@ -52,35 +52,49 @@ module.exports = {
     yt = ytdl(args[0], options);
     const video_info = await ytdl.getInfo(args[0]);
 
-    if(start_time != null) {
-      start_total = 0; 
-      start_array = await convertTimeToSeconds(start_time);
-      for(const i in start_array) { start_total += start_array[i]; }
-    }else{
-      start_total = 0;
-    }
-
-    if(end_time != null) {
-      end_total = 0;
-      end_array = await convertTimeToSeconds(end_time);
-      for(const x in end_array) { end_total += end_array[x]; }
-    }else{
-      end_total = video_info.videoDetails.lengthSeconds;
-    }
-    duration_crop = end_total - start_total;
-
     const title = `${video_info.videoDetails.title}_.mp3`.split(' ').join('_');
- 
 
-    outStream = fs.createWriteStream(`resources/${title}`);
-    ffmpeg().input(yt)
-    .format('mp3')
-    .seekInput(start_total)
-    .duration(duration_crop)
-    .on('end', () => {
-      interaction.editReply({ files: [`resources/${title}`] }); 
-    })
-    .pipe(outStream);
+    if(start_time === null && end_time === null) {
+      await yt.pipe(fs.createWriteStream(`resources/${title}`));
+      yt.on('finish', async () => {
+        await interaction.editReply({ files: [`resources/${title}`] });
+        return fs.unlinkSync(`resources/${title}`, function(err) {
+          if (err) return console.log(err);
+          console.log('file deleted successfully');
+        });
+      });
+    }else{
+      if(start_time != null) {
+        start_total = 0; 
+        start_array = await convertTimeToSeconds(start_time);
+        for(const i in start_array) { start_total += start_array[i]; }
+      }else{
+        start_total = 0;
+      }
+
+      if(end_time != null) {
+        end_total = 0;
+        end_array = await convertTimeToSeconds(end_time);
+        for(const x in end_array) { end_total += end_array[x]; }
+      }else{
+        end_total = video_info.videoDetails.lengthSeconds;
+      }
+      duration_crop = end_total - start_total;
+
+      outStream = fs.createWriteStream(`resources/${title}`);
+      ffmpeg().input(yt)
+      .format('mp3')
+      .seekInput(start_total)
+      .duration(duration_crop)
+      .on('end', async () => {
+        await interaction.editReply({ files: [`resources/${title}`] }); 
+        return fs.unlinkSync(`resources/${title}`, function(err) {
+          if (err) return console.log(err);
+          console.log('file deleted successfully');
+        });
+      })
+      .pipe(outStream);
+    }
   },
 };
 
