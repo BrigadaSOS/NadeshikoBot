@@ -13,6 +13,7 @@
     "discord.js": "^13.1.0-dev.1628770069.d9456a1",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
+    "fluent-ffmpeg": "^2.1.2",
     "glob": "^7.1.7",
     "html-entities": "^2.3.2",
     "i18n": "^0.13.3",
