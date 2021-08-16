@@ -1,7 +1,7 @@
 const client = require('../index');
 
 // Listener of reactions 
-client.on('messageReactionAdd', async (reaction, user) => {
+client.on('messageReactionAdd', async (reaction) => {
 	if (reaction.partial) {
 		// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
 		try {

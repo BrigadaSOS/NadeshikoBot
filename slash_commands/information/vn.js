@@ -20,6 +20,12 @@ module.exports = {
 			type: 'STRING',
 			required: true,
 		},
+		{
+			name: 'language',
+			description: 'spanish (es), english (en)',
+			type: 'STRING',
+			required: false,
+		},
 	],
 	run: async (client, interaction, args) => {
 		const VNDB = require('vndb-api');
@@ -30,27 +36,32 @@ module.exports = {
 			maxConnection: 10,
 		});
 
+		language = interaction.options.getString('language');
+
 		if(args[0] === '0') {
-			response = await vndb.query('dbstats');
-			search_value = (Math.random() * (response.vn - 1 + 1)) << 0;
-			response = await vndb.query(`get vn basic,details,stats,relations (id = ${search_value})`);
+			response_random = await vndb.query('dbstats');
+			search_value = (Math.random() * (response_random.vn - 1 + 1)) << 0;
+			response = await vndb.query(`get vn basic,details,stats,relations,screens (id = ${search_value})`);
 		}else{
 			search_value = args[0];
-			response = await vndb.query(`get vn basic,details,stats,relations (search ~ "${search_value}" or original ~ "${search_value}")`);
+			response = await vndb.query(`get vn basic,details,stats,relations,screens
+			 (search ~ "${search_value}" or original ~ "${search_value}")`);
 		}
-		
+		release_response = await vndb.query(`get release basic,details,producers (vn = ${response.items[0].id})`).catch(error => {console.log(error); });
+
 		// Use the response
-		console.log(response.items[0]);
 		raw_description = response.items[0].description || '';
 		description = raw_description.replace(/More information\r?\n?[^\r\n]*$/ || '', '');
 		description = description.replace(/\[r?\n?[^\r\n]*$/ || '', '');
 		description = description.replace(/\[(.*)\]/ | '', '');
 
 		try {
-			description = await deepl.translateService(description);
+			if(language != null) {
+				description = await deepl.translateService(description);
+			}
 		}
-		catch (TimeoutError) {
-			description = this.description;
+		catch (error) {
+			console.log(error);
 		}
 
 		let title_related = '';
@@ -70,25 +81,14 @@ module.exports = {
 			.setColor('e791d0')
 			.setAuthor('VNDB', '', 'https://vndb.org/')
 			.setURL('https://vndb.org/v' + response.items[0].id)
-			.setTitle(
-				response.items[0].title ? response.items[0].title : 'No disponible')
-			.setDescription('' + description)
+			.setTitle(response.items[0].title ? response.items[0].title : 'No disponible')
+			.setDescription(description === null ? 'No disponible' : '' + description)
 			.setThumbnail(response.items[0].image_nsfw === true ? 'https://media.discordapp.net/attachments/862009318168723517/871577382241308702/God_the_Father.png' : response.items[0].image)
-			.addField(
-				'❯ Titulo original',
-				response.items[0].original
-					? response.items[0].original
-					: 'No disponible', true)
+			.addField('❯ Titulo original', response.items[0].original ? response.items[0].original : 'No disponible', true)
 			.addField('❯ Fecha de lanzamiento', '' + response.items[0].released, true)
-			.addField('❯ Desarrollador', 'No disponible', true)
-			.addField(
-				'❯ Duración',
-				duration[response.items[0].length]
-					? duration[response.items[0].length]
-					: 'No disponible', true)
-			.addField(
-				'❯ Puntaje promedio',
-				`${response.items[0].rating}  (Votos: ${response.items[0].votecount})`, true)
+			.addField('❯ Desarrollador', '' + release_response.items[0].producers[0].name, true)
+			.addField('❯ Duración', duration[response.items[0].length] ? duration[response.items[0].length] : 'No disponible', true)
+			.addField('❯ Puntaje promedio', `${response.items[0].rating}  (Votos: ${response.items[0].votecount})`, true)
 			.addField('❯ Popularidad', `${response.items[0].popularity}`, true)
 			.addField('❯ Relacionado', '' + title_related || 'Ninguna');
 

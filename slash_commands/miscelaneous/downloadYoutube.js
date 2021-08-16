@@ -52,8 +52,8 @@ module.exports = {
     yt = ytdl(args[0], options);
     const video_info = await ytdl.getInfo(args[0]);
 
-    const title = `${video_info.videoDetails.title}_.mp3`.split(' ').join('_');
-
+    let title = `${video_info.videoDetails.title}`.replace(/[^A-Z0-9]+/ig, '_');
+    title = title += '_.mp3';
     if(start_time === null && end_time === null) {
       await yt.pipe(fs.createWriteStream(`resources/${title}`));
       yt.on('finish', async () => {

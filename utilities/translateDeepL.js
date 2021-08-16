@@ -4,7 +4,7 @@ async function translateService(text) {
 	// Options
 	sourceLanguage = 'en'; // 'en' | 'de' | 'fr' | 'es' | 'pt' | 'it' | 'nl' | 'pl' | 'ru'
 	targetLanguage = 'es'; // 'en-US' | 'en-GB' | 'de-DE' | 'fr-FR' | 'es-ES' | 'pt-PT' | 'pt-BR' | 'it-IT' | 'nl-NL' | 'pl-PL' | 'ru-RU' | 'ja-JA' | 'zh-ZH'
-	url = `https://www.deepl.com/translator#${sourceLanguage}/${targetLanguage}/${text}`;
+	url = `https://www.deepl.com/translator#${sourceLanguage}/${targetLanguage}/`;
 
 	const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] }); // default is true
 	const page = await browser.newPage();
@@ -20,20 +20,21 @@ async function translateService(text) {
 
 	await page.goto(url);
 
-	// const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
-
 	// Get selectors from both squares
 	await page.waitForSelector(
 		'.lmt__language_select--target .lmt__language_select__active',
 	);
 
-	// async function setSelectVal(sel, val) {
-	//	page.evaluate((data) => {
-	//		return document.querySelector(data.sel).value = data.val;
-	//	}, { sel, val });
-	// }
 
-	// await waitForTranslation();
+	async function setSelectVal(sel, val) {
+		page.evaluate((data) => {
+			return document.querySelector(data.sel).value = data.val;
+		}, { sel, val });
+	}
+	
+	await page.click('.lmt__source_textarea');
+	await page.keyboard.type(' ');
+	await setSelectVal('.lmt__source_textarea', text);
 
   const selector = '.lmt__target_textarea';
   await page.waitForFunction(
