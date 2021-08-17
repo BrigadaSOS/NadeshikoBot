@@ -6,11 +6,11 @@ client.on('messageCreate', async (message) => {
 
   function deleteMessage() {
     message.delete();
-    message.channel.send(`¡El spam no está permitido! ${message.author}`).then(msg => {
+    message.channel.send(`Le grasoso no :pleading_face: ${message.author}`).then(msg => {
         setTimeout(() => msg.delete(), 5000);
       });
   }
-
+  
   const links = ['discord.gg/', 'discord.com/invite/'];
   const forbiddenLinks = ['discord.io/'];
 

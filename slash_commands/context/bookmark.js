@@ -10,13 +10,13 @@ module.exports = {
         const message = interaction.options.getMessage('message');
         const embed = new MessageEmbed();
 
-        time_msg = `${dateFormat(message.createdAt, 'dd/mm/yy | HH:MM')}`;
+        time_msg = `${dateFormat(message.createdAt, 'dd/mm/yy  |  HH:MM')}`;
         url_msg = message.url;
 
         try {
             type_msg = message.type;
             content_msg = message.content;
-            username_msg = message.author.username + '#' + message.author.discriminator;
+            username_msg = message.user.tag;
             image_msg = message.attachments.first().url;    
         } catch (error) {
             console.log(error);
