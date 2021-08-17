@@ -1,5 +1,6 @@
-const deepl = require('../../utilities/translateDeepL');
 const { MessageEmbed } = require('discord.js');
+const deepl = require('../../utilities/deepPuppeter');
+const deepApi = require('../../utilities/deepAPI');
 
 module.exports = {
 	name: 'Translate-DeepL',
@@ -9,11 +10,24 @@ module.exports = {
 
         const message = interaction.options.getMessage('message');
         username_msg = message.author.username + '#' + message.author.discriminator;
-        result = await deepl.translateService(message.content);
+        content_message = message.content;
+       
+        try {
+            response = await deepApi.translateDeepApi(content_message);
+            result = response.data.translations[0].text;
+        } catch (error) {
+            console.log(error);
+            try {
+                result = await deepl.translateService(content_message);
+            } catch (error) {
+                result = 'No ha sido posible traducir el mensaje.';
+            }
+        }
 
-        embed.setDescription(result)
+        embed.setDescription(`${result}\n\n[Link al mensaje original](${message.url})`)
             .setColor('#32a852')
-            .setAuthor(username_msg, message.author.displayAvatarURL(), message.url);
+            .setTitle('Resultado')
+            .setAuthor('Mensaje original por ' + username_msg, message.author.displayAvatarURL(), message.url);
 
         interaction.editReply({ embeds: [embed] });
     },

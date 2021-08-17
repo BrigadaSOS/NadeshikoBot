@@ -2,7 +2,8 @@ const { stripIndents } = require('common-tags');
 const { cleanAnilistHTML } = require('../../utilities/util');
 
 const Discord = require('discord.js');
-const deepl = require('../../utilities/translateDeepL');
+const deepl = require('../../utilities/deepPuppeter');
+const deepApi = require('../../utilities/deepAPI');
 
 const searchGraphQL = stripIndents`
 	query ($search: String, $type: MediaType, $isAdult: Boolean) {
@@ -76,18 +77,41 @@ module.exports = {
       type: 'STRING',
       required: true,
       },
+      {
+        name: 'language',
+        description: 'spanish, english',
+        type: 'STRING',
+        required: false,
+    },
     ],
     run: async (client, interaction, args) =>{
         const id = await searchAnime(args[0]);
         if (!id) return interaction.editReply('No ha sido posible encontrar resultados.');
         const anime = await fetchAnime(id);
+        let description = anime.description;
+        language = interaction.options.getString('language');
+
+        if(language != null) {
+			try {
+				response_deepl = await deepApi.translateDeepApi(description);
+				description = response_deepl.data.translations[0].text;
+			} catch (error) {
+				console.log(error);
+				try {
+					description = await deepl.translateService(description);
+				} catch (error) {
+					console.log(error);
+					description = 'No ha sido posible traducir el mensaje.';
+				}
+			}
+		}
         const embed = new Discord.MessageEmbed()
 				.setColor('e791d0')
 				.setAuthor('AniList', 'https://i.imgur.com/iUIRC7v.png', 'https://anilist.co/')
 				.setURL(anime.siteUrl)
 				.setThumbnail(anime.coverImage.large || anime.coverImage.medium || null)
 				.setTitle(anime.title.english || anime.title.romaji)
-				.setDescription(anime.description ? '' + await deepl.translateService(cleanAnilistHTML(anime.description)) : 'No disponible')
+				.setDescription(description ? '' + cleanAnilistHTML(description) : 'No disponible')
 				.addField('❯ Estado', statuses[anime.status], true)
 				.addField('❯ Episodios', '' + anime.episodes || '???', true)
 				.addField('❯ Temporada', anime.season ? `${seasons[anime.season]} ${anime.startDate.year}` : 'No disponible', true)

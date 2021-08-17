@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
-const deepl = require('../../utilities/translateDeepL');
+const deepl = require('../../utilities/deepPuppeter');
+const deepApi = require('../../utilities/deepAPI');
 
 const duration = {
 	5: 'Muy largo (>50 horas)',
@@ -22,7 +23,7 @@ module.exports = {
 		},
 		{
 			name: 'language',
-			description: 'spanish (es), english (en)',
+			description: 'spanish, english',
 			type: 'STRING',
 			required: false,
 		},
@@ -47,7 +48,12 @@ module.exports = {
 			response = await vndb.query(`get vn basic,details,stats,relations,screens
 			 (search ~ "${search_value}" or original ~ "${search_value}")`);
 		}
-		release_response = await vndb.query(`get release basic,details,producers (vn = ${response.items[0].id})`).catch(error => {console.log(error); });
+
+		try {
+			release_response = await vndb.query(`get release basic,details,producers (vn = ${response.items[0].id})`).catch(error => {console.log(error); });
+		} catch (error) {
+			console.log(error);
+		}
 
 		// Use the response
 		raw_description = response.items[0].description || '';
@@ -55,24 +61,28 @@ module.exports = {
 		description = description.replace(/\[r?\n?[^\r\n]*$/ || '', '');
 		description = description.replace(/\[(.*)\]/ | '', '');
 
-		try {
-			if(language != null) {
-				description = await deepl.translateService(description);
+	
+		if(language != null) {
+			try {
+				response_deepl = await deepApi.translateDeepApi(description);
+				description = response_deepl.data.translations[0].text;
+			} catch (error) {
+				console.log(error);
+				try {
+					description = await deepl.translateService(description);
+				} catch (error) {
+					console.log(error);
+					description = 'No ha sido posible traducir el mensaje.';
+				}
 			}
 		}
-		catch (error) {
-			console.log(error);
-		}
-
 		let title_related = '';
 		for (let i = 0; i < response.items[0].relations.length; i++) {
-			if (
-				response.items[0].relations[i].relation === 'alt' ||
-        response.items[0].relations[i].relation === 'side' ||
-        response.items[0].relations[i].relation === 'preq' ||
-        response.items[0].relations[i].relation === 'fan' ||
-        response.items[0].relations[i].relation === 'seq'
-			) {
+			if (response.items[0].relations[i].relation === 'alt' ||
+				response.items[0].relations[i].relation === 'side' ||
+				response.items[0].relations[i].relation === 'preq' ||
+				response.items[0].relations[i].relation === 'fan' ||
+				response.items[0].relations[i].relation === 'seq') {
 				title_related += `[${response.items[0].relations[i].title}](https://vndb.org/v${response.items[0].relations[i].id})\n`;
 			}
 		}
@@ -86,7 +96,7 @@ module.exports = {
 			.setThumbnail(response.items[0].image_nsfw === true ? 'https://media.discordapp.net/attachments/862009318168723517/871577382241308702/God_the_Father.png' : response.items[0].image)
 			.addField('❯ Titulo original', response.items[0].original ? response.items[0].original : 'No disponible', true)
 			.addField('❯ Fecha de lanzamiento', '' + response.items[0].released, true)
-			.addField('❯ Desarrollador', '' + release_response.items[0].producers[0].name, true)
+			.addField('❯ Desarrollador', release_response.items[0].producers[0].name != null ? '' + release_response.items[0].producers[0].name : 'No disponible', true)
 			.addField('❯ Duración', duration[response.items[0].length] ? duration[response.items[0].length] : 'No disponible', true)
 			.addField('❯ Puntaje promedio', `${response.items[0].rating}  (Votos: ${response.items[0].votecount})`, true)
 			.addField('❯ Popularidad', `${response.items[0].popularity}`, true)
