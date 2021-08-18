@@ -10,7 +10,18 @@ module.exports = {
 
         const message = interaction.options.getMessage('message');
         username_msg = message.author.username + '#' + message.author.discriminator;
-        content_message = message.content;
+
+        try {
+            content_embed = message.embeds[0].description;
+        } catch (error) {
+            content_embed = null;
+        }
+        
+        if(content_embed != null) {
+            content_message = content_embed;
+        }else{
+            content_message = message.content;
+        }
        
         try {
             response = await deepApi.translateDeepApi(content_message);
