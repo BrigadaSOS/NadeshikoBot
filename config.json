@@ -1,3 +1,5 @@
 {
-  "language": "es"
+  "language": "es",
+  "main_color": "eb868f",
+  "error_color": "f03030"
 }

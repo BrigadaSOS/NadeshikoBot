@@ -1,3 +1,5 @@
+const { MessageEmbed } = require('discord.js');
+
 module.exports = {
   name: 'avatar',
   description: 'Get the avatar URL of the tagged user or your own avatar.',
@@ -11,8 +13,14 @@ module.exports = {
     },
   ],
   run: async (client, interaction, args) =>{
+    const embed = new MessageEmbed()
+    .setTitle('Avatar')
+    .setColor('eb868f');
+
     if(args[0] == null) {
-      interaction.editReply(interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }));
+      embed.setImage(interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }));
+      interaction.editReply({ embeds: [embed] });
+
     }else{
       memberMention = interaction.options.get('user').value;
       id_user = memberMention.replace(/\D/g, '');
@@ -21,7 +29,8 @@ module.exports = {
       } catch (error) {
         return interaction.editReply('El valor ingresado no es un usuario.');
       }
-      interaction.editReply(userObject.displayAvatarURL({ dynamic: true, size: 1024 }));
+      embed.setImage(userObject.displayAvatarURL({ dynamic: true, size: 1024 }));
+      interaction.editReply({ embeds: [embed] });
     }
   },
 };

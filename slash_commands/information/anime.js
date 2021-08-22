@@ -5,6 +5,8 @@ const Discord = require('discord.js');
 const deepl = require('../../utilities/deepPuppeter');
 const deepApi = require('../../utilities/deepAPI');
 
+const languages = ['es', 'en', 'ja'];
+
 const searchGraphQL = stripIndents`
 	query ($search: String, $type: MediaType, $isAdult: Boolean) {
 		anime: Page (perPage: 10) {
@@ -71,18 +73,18 @@ module.exports = {
     description: 'Searches AniList for your query, getting anime results',
     args: true,
     options: [
-      {
-      name: 'name',
-      description: 'What anime would you like to search for?',
-      type: 'STRING',
-      required: true,
-      },
-      {
-        name: 'language',
-        description: 'spanish, english',
-        type: 'STRING',
-        required: false,
-    },
+        {
+            name: 'name',
+            description: 'What anime would you like to search for?',
+            type: 'STRING',
+            required: true,
+        },
+        {
+            name: 'language',
+            description: 'Spanish (ES), English (EN), Japanese (JA)',
+            type: 'STRING',
+            required: false,
+        },
     ],
     run: async (client, interaction, args) =>{
         const id = await searchAnime(args[0]);
@@ -93,8 +95,12 @@ module.exports = {
 
         if(language != null) {
 			try {
-				response_deepl = await deepApi.translateDeepApi(description);
+                if(languages.includes(language.toLowerCase())) {
+				response_deepl = await deepApi.translateDeepApi(description, language);
 				description = response_deepl.data.translations[0].text;
+                }else{
+                    return interaction.editReply('Lenguaje no válido.');
+                }
 			} catch (error) {
 				console.log(error);
 				try {
@@ -106,8 +112,8 @@ module.exports = {
 			}
 		}
         const embed = new Discord.MessageEmbed()
-				.setColor('e791d0')
-				.setAuthor('AniList', 'https://i.imgur.com/iUIRC7v.png', 'https://anilist.co/')
+                .setColor('eb868f')
+                .setAuthor('AniList', 'https://i.imgur.com/iUIRC7v.png', 'https://anilist.co/')
 				.setURL(anime.siteUrl)
 				.setThumbnail(anime.coverImage.large || anime.coverImage.medium || null)
 				.setTitle(anime.title.english || anime.title.romaji)

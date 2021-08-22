@@ -9,6 +9,7 @@ module.exports = {
         // Message, user and embed object
         const message = interaction.options.getMessage('message');
         const embed = new MessageEmbed();
+        console.log(message);
 
         time_msg = `${dateFormat(message.createdAt, 'dd/mm/yy  |  HH:MM')}`;
         url_msg = message.url;
@@ -16,7 +17,7 @@ module.exports = {
         try {
             type_msg = message.type;
             content_msg = message.content;
-            username_msg = message.user.tag;
+            username_msg = message.author.username;
             image_msg = message.attachments.first().url;    
         } catch (error) {
             console.log(error);

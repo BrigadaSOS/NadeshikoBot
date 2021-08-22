@@ -40,5 +40,9 @@ module.exports = async (client) => {
         await client.guilds.cache
             .get('795683075212312636')
             .commands.set(arrayOfSlashCommands);
+
+        await client.guilds.cache
+            .get('864875941105106964')
+            .commands.set(arrayOfSlashCommands);
     });
 };

@@ -15,7 +15,7 @@
     "deepl": "^1.0.12",
     "discord-player": "^5.0.2",
     "discord-together": "^1.1.62",
-    "discord.js": "^13.1.0-dev.1628770069.d9456a1",
+    "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
     "fluent-ffmpeg": "^2.1.2",

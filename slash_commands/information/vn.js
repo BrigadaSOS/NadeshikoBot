@@ -10,6 +10,7 @@ const vndb = new VNDB('clientname', {
 });
 
 errors = [];
+const languages = ['es', 'en', 'ja'];
 
 const duration = {
 	5: 'Muy largo (>50 horas)',
@@ -32,7 +33,7 @@ module.exports = {
 		},
 		{
 			name: 'language',
-			description: 'spanish, english',
+            description: 'Spanish (ES), English (EN), Japanese (JA)',
 			type: 'STRING',
 			required: false,
 		},
@@ -86,8 +87,13 @@ module.exports = {
 
 		if(lang_input != null) {
 			try {
-				response_deepl = await deepApi.translateDeepApi(description);
-				description = response_deepl.data.translations[0].text;
+				if(languages.includes(lang_input.toLowerCase())) {
+					response_deepl = await deepApi.translateDeepApi(description, lang_input);
+					description = response_deepl.data.translations[0].text;
+				}else{
+					return interaction.editReply('Lenguaje no válido.');
+				}
+
 			} catch (error) {
 				errors.push(error);
 				try {
@@ -121,7 +127,9 @@ module.exports = {
 			errors.push(error);
 			developer = 'No disponible';
 		}
-	
+		
+		nsfw_check = null;
+
 		try {
 			amount_screens = Object.keys(response.items[0].screens).length;
 			index_screens = (Math.random() * (amount_screens - 1 + 1)) << 0;
@@ -142,14 +150,14 @@ module.exports = {
 			}else{
 				image_cover = response.items[0].image;
 			}
-			if(nsfw_check === true) {
+			if(nsfw_check === true || nsfw_check === null) {
 				choosen_image = '';
 			}
 		}
 		
 		// eslint-disable-next-line prefer-const
 		let embed = new Discord.MessageEmbed()
-			.setColor('e791d0')
+            .setColor('eb868f')
 			.setAuthor('VNDB', '', 'https://vndb.org/')
 			.setImage(choosen_image)
 			.setURL('https://vndb.org/v' + response.items[0].id)
