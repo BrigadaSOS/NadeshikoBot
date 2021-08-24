@@ -1,7 +1,8 @@
 const { Client, Collection } = require('discord.js');
 const path = require('path');
 const i18n = require('i18n');
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 
 const client = new Client({
   intents: ['GUILDS', 

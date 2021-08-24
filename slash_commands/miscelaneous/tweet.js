@@ -4,10 +4,10 @@ const Discord = require('discord.js');
 
 // Credentials Auth API Twitter
 const twitterClient = new TwitterApi({
-    appKey: process.env.consumer_key,
-    appSecret: process.env.consumer_secret,
-    accessToken: process.env.access_token_key,
-    accessSecret: process.env.access_token_secret,
+    appKey: process.env.CONSUMER_KEY,
+    appSecret: process.env.CONSUMER_SECRET,
+    accessToken: process.env.ACCESS_TOKEN_KEY,
+    accessSecret: process.env.ACCESS_TOKEN_SECRET,
 });
 
 module.exports = {
@@ -106,9 +106,9 @@ async function gatherTweets(client, username, interaction) {
     for(const embed_item in media_objects) {
         array_embeds.push(
             new Discord.MessageEmbed()
-                .setFooter('Solicitado por: ' + interaction.user.tag,interaction.user.displayAvatarURL())
+                .setFooter('Tweet solicitado por: ' + interaction.user.tag, interaction.user.displayAvatarURL())
                 .setDescription(content_tweet)
-                .setColor('#1da1f2')
+                .setColor('#eb868f')
                 .setURL('https://www.google.com')
                 .setImage(media_objects[embed_item][2]),
             );
@@ -118,9 +118,9 @@ async function gatherTweets(client, username, interaction) {
     if(array_embeds.length === 0) {
         array_embeds.push(
             new Discord.MessageEmbed()
-            .setFooter('Solicitado por: ' + interaction.user.tag, interaction.user.displayAvatarURL())
+            .setFooter('Tweet solicitado por: ' + interaction.user.tag, interaction.user.displayAvatarURL())
             .setDescription(content_tweet)
-            .setColor('#1da1f2')
+            .setColor('#eb868f')
             .setURL('https://www.google.com')
             ,
         );
