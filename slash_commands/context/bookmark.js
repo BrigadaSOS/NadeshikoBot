@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const dateFormat = require('dateformat');
+// const dateFormat = require('dateformat');
 
 module.exports = {
 	name: 'Bookmark',

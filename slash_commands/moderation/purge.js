@@ -31,7 +31,7 @@ module.exports = {
 
 			const userMessages = (await messages).filter((m) => m.author.id === userObject.id);
 			await message.channel.bulkDelete(userMessages);
-			interaction.editReply(`Los mensajes de ${userObject} han sido eliminados.`);
+			
 		}else{
 			if (isNaN(amount)) {
 				return interaction.editReply('Número no valido.');

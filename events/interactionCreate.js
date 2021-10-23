@@ -4,7 +4,6 @@ client.on('interactionCreate', async (interaction) => {
     // Slash Command Handling
     if (interaction.isCommand()) {
         await interaction.deferReply({ ephemeral: false }).catch(() => {});
-
         const cmd = client.slashCommands.get(interaction.commandName);
         if (!cmd)
             {return interaction.followUp({ content: 'An error has occured ' });}
@@ -30,4 +29,5 @@ client.on('interactionCreate', async (interaction) => {
         const command = client.slashCommands.get(interaction.commandName);
         if (command) command.run(client, interaction);
     }
+    return interaction;
 });
