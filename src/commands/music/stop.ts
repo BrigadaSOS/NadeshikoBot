@@ -3,7 +3,7 @@ const { distube } = require('./play.ts')
 
 export default new Command({
     name: 'stop',
-	description: 'Stop a queue.',
+	description: 'Detiene una queue.',
     run: async ({ interaction, client }) => {
         let queue = distube.getQueue(interaction.guildId);
         distube.stop(queue)

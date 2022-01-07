@@ -3,7 +3,7 @@ import { ExtendedClient } from "../../structures/Client";
 export const client = new ExtendedClient();
 const { SpotifyPlugin } = require("@distube/spotify");
 const { MessageEmbed } = require('discord.js');
-const DisTube = require('distube')
+const DisTube = require('distube');
 
 export const distube = new DisTube.default(client, {
     plugins: [new SpotifyPlugin()],
@@ -14,7 +14,7 @@ let lastInteraction = null;
 
 export default new Command({
 	name: 'play',
-	description: 'Play any song.',
+	description: 'Reproduce un audio.',
     options: [
         {
         name: 'song',

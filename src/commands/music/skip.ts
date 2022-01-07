@@ -3,7 +3,7 @@ const { distube } = require('./play.ts')
 
 export default new Command({
     name: 'skip',
-	description: 'Skip a song.',
+	description: 'Omite un audio.',
     run: async ({ interaction, client }) => {
         const queue = distube.getQueue(interaction.guildId);
 

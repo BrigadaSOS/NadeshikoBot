@@ -4,7 +4,7 @@ const { MessageEmbed } = require('discord.js');
 
 export default new Command({
 	name: 'queue',
-	description: 'List of songs currenly in queue.',
+	description: 'Lista de audios en la queue.',
     run: async ({ interaction, client }) => {
 
         let queue = distube.getQueue(interaction.guildId);

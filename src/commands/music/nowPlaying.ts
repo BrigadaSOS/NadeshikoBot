@@ -5,7 +5,7 @@ const progressbar = require('string-progressbar');
 
 export default new Command({
     name: 'nowplaying',
-	description: 'List of songs currenly in queue.',
+	description: 'Muestra el audio actual que está sonando.',
     run: async ({ interaction, client }) => {
         let queue = distube.getQueue(interaction.guildId);
         const song = queue.songs[0];
