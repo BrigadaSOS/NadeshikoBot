@@ -1,11 +1,8 @@
 import { Command } from "../../structures/Command";
 import { LogModel } from "../../models/log";
 import { MessageEmbed, MessageAttachment } from "discord.js";
-const fs = require("fs").promises;
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
-const ChartJSImage = require("chart.js-image");
 import { ExtendedClient } from "../../structures/Client";
-import { resolve } from "path/posix";
 export const client = new ExtendedClient();
 var faker = require("community-faker");
 
@@ -39,7 +36,7 @@ export default new Command({
             {
               name: "Novela Visual - [Caracteres]",
               value: "VN",
-            }, ///////////////////////////////////////
+            }, 
             {
               name: "Escucha - [Minutos]",
               value: "LISTENING",
@@ -139,11 +136,31 @@ export default new Command({
           choices: [
             {
               name: "Anime",
-              value: "Anime",
+              value: "ANIME",
             },
             {
               name: "Manga",
-              value: "Manga",
+              value: "MANGA",
+            },
+            {
+              name: "Libro",
+              value: "BOOK",
+            },
+            {
+              name: "Novela Visual",
+              value: "VN",
+            }, 
+            {
+              name: "Escucha",
+              value: "LISTENING",
+            },
+            {
+              name: "Lectura",
+              value: "READING",
+            },
+            {
+              name: "Tiempo de Lectura",
+              value: "READINGTIME",
             },
           ],
         },
@@ -171,7 +188,9 @@ export default new Command({
     },
   ],
   run: async ({ interaction, client }) => {
+
     if (interaction.options.getSubcommand() === "guardar") {
+
       const type_activity = interaction.options.getString("tipo");
       const amount = interaction.options.getInteger("cantidad");
       const details = interaction.options.getString("detalles");
@@ -188,14 +207,54 @@ export default new Command({
         details: details,
       };
 
-      const data2 = {
-        discord_user_id: discord_user_id,
-        username: interaction.user.username,
-      };
+      let dates_list = await getDateTime('mes');
+      let firstInterval = dates_list[0];
+      let lastInterval = dates_list[1];
+      let timeframe = dates_list[2];
+
+      const amountCursor = await LogModel.aggregate([
+        {
+          $match: {
+            discord_user_id: discord_user_id,
+            create_at: {
+              $gte: new Date(firstInterval),
+              $lt: new Date(lastInterval),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$type_activity",
+            total: {
+              $sum: "$amount",
+            },
+          },
+        },
+      ]);
 
       const currentStoredData = await LogModel.create(data);
+      console.log(currentStoredData);
 
-      interaction.editReply("Log guardado.");
+      let coincidence = null;
+      amountCursor.forEach((resultAmount) =>{
+        console.log(resultAmount)
+        if(currentStoredData.type_activity === resultAmount._id){
+          coincidence = resultAmount.total;
+        }
+      });
+
+      const conversion_en_to_es = {
+        ANIME: "Anime",
+        BOOK: "Libro",
+        MANGA: "Manga",
+        VN: "Novela visual",
+        LISTENING: "Escucha",
+        READING: "Lectura",
+        READINGTIME: "Tiempo de lectura",
+      };
+
+      interaction.editReply(`**¡Se ha guardado el log!**\nTotal para la categoría "${ conversion_en_to_es[currentStoredData.type_activity.toString()]}" (mes): ~~${coincidence}~~  →  ${coincidence+currentStoredData.amount} \n\n**Detalles del log guardado:**\nFecha de creación: \`${currentStoredData.create_at.toISOString().slice(0, 10)}\`\nTipo de contenido: \`${currentStoredData.type_activity}\`\nDetalles: ${currentStoredData.details}\nCantidad: \`${currentStoredData.amount}\`\n`);
+    
     } else if (interaction.options.getSubcommand() === "perfil") {
       // Current info from user (or selected user)
       let current_user_name = null;
@@ -265,38 +324,18 @@ export default new Command({
       };
 
       let final_message = "";
-      let type_append = "";
+      let category_append = "";
       if (resultCursor.length === 0) {
         return interaction.editReply("No hay datos que mostrar.");
       }
       console.log(
         resultCursor.forEach((result) => {
           console.log(result);
-          if (result._id === "ANIME") {
-            type_append = "episodios";
-          }
-          if (result._id === "BOOK") {
-            type_append = "páginas";
-          }
-          if (result._id === "MANGA") {
-            type_append = "capitulos";
-          }
-          if (result._id === "VN") {
-            type_append = "caracteres";
-          }
-          if (result._id === "LISTENING") {
-            type_append = "minutos";
-          }
-          if (result._id === "READING") {
-            type_append = "caracteres";
-          }
-          if (result._id === "READINGTIME") {
-            type_append = "minutos";
-          }
+          let category_append = normalizerAmount(result._id);
 
           final_message += `**${conversion_en_to_es[result._id]}:** ${
             result.total
-          } ${type_append}\n`;
+          } ${category_append}\n`;
         })
       );
 
@@ -399,6 +438,7 @@ export default new Command({
       let lastInterval2 = dates_list2[1];
       let timeframe2 = dates_list2[2];
 
+      console.log(category)
       console.log(firstInterval2 + "--" + lastInterval2);
       const resultCursor = await LogModel.aggregate([
         {
@@ -504,23 +544,85 @@ export default new Command({
       });
 
       Promise.all(promises).then((results) => {
-        console.log(results);
         let position_ranking = 1;
-
+        const conversion_en_to_es = {
+          ANIME: "Anime",
+          BOOK: "Libro",
+          MANGA: "Manga",
+          VN: "Novela visual",
+          LISTENING: "Escucha",
+          READING: "Lectura",
+          READINGTIME: "Tiempo de lectura",
+        };
+        
         results.forEach((result) => {
           console.log(result);
-          ranking_text += `${position_ranking}) ${result["id"]}: ${result["amount"]} capitulos.\n`;
+          let category_append = normalizerAmount(result["type"]);
+          ranking_text += `${position_ranking}) ${result["id"]}: ${result["amount"]} ${category_append}.\n`;
           position_ranking += 1;
         });
         const embed = new MessageEmbed()
-          .setTitle(`Ranking ${category} ${timeframe2}`)
+          .setTitle(`Ranking [${conversion_en_to_es[category]}] ${timeframe2}`)
           .setColor("#eb868f")
           .setDescription(ranking_text);
         interaction.editReply({ embeds: [embed] });
       });
+
+    }else if (interaction.options.getSubcommand() === "historial") {
+      const current_user_id = interaction.user.id.toString();
+      const historyCursor = await LogModel.aggregate([
+        {
+          $match: {
+            discord_user_id: current_user_id,
+          },
+        },
+        {
+          $sort: {
+            create_at: -1,
+          },
+        },
+        { $limit: 15 },
+      ]);
+
+      let final_text = 'Logs más recientes```js\nFecha | Tipo | Detalles | Cantidad\n';
+      historyCursor.forEach((item) => {
+        final_text += `${item.create_at.toISOString().slice(0, 10)} | ${item.type_activity} | ${item.details} | ${item.amount}\n`
+      })
+      final_text += '```';
+
+      interaction.editReply(final_text);
+
     }
   },
 });
+
+//////////////////////////////////////////////////////////////////////////////
+
+function normalizerAmount(category) {
+  let category_append = null;
+  if (category === "ANIME") {
+    category_append = "episodios";
+  }
+  if (category === "BOOK") {
+    category_append = "páginas";
+  }
+  if (category === "MANGA") {
+    category_append = "capitulos";
+  }
+  if (category === "VN") {
+    category_append = "caracteres";
+  }
+  if (category === "LISTENING") {
+    category_append = "minutos";
+  }
+  if (category === "READING") {
+    category_append = "caracteres";
+  }
+  if (category === "READINGTIME") {
+    category_append = "minutos";
+  }
+  return category_append;
+}
 
 async function getDateTime(range) {
   let currentDate = new Date();

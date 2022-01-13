@@ -31,8 +31,11 @@ export default new Command({
             await interaction.editReply('Necesitas estar en un canal de voz.');
             return;
         }
-
-        await playSong(interaction, voice, song);
+        try {
+            await playSong(interaction, voice, song);
+        } catch (error) {
+            interaction.editReply('Video no disponible.')
+        }
         
         try {
             let queue = await distube.getQueue(interaction.guildId);                
