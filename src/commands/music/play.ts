@@ -52,7 +52,7 @@ export default new Command({
 
 async function playSong(interaction, voice, song){
     lastInteraction = interaction;
-    await distube.playVoiceChannel(voice, song, {textChannel: interaction.channel});
+    await distube.play(voice, song, {textChannel: interaction.channel});
 }
 
 

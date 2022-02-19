@@ -1,6 +1,6 @@
 import { Command } from "../../structures/Command";
 const { MessageEmbed } = require('discord.js');
-
+const readline = require('readline');
 const fs = require('fs')
 const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg')
@@ -9,7 +9,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 export default new Command({
     name: 'download',
-	description: 'Testing',
+	description: 'Descarga y/o recorta un video en formato MP3 o MP4.',
     options: [
         {
         name: 'url',
@@ -27,6 +27,10 @@ export default new Command({
                 name: "MP4",
                 value: "MP4",
                 },
+                /*{
+                    name: "MP4 (HD)",
+                    value: "MP4_HD",
+                },*/
                 {
                     name: "MP3",
                     value: "MP3",
@@ -69,6 +73,9 @@ export default new Command({
             };  
             title_video = `${video_info.videoDetails.title}`.replace(/[^A-Z0-9]+/ig, '_');
             title_video = title_video + '.mp3';
+        }else if(option === 'MP4_HD'){  
+            const audio = ytdl(url, { quality: 'highestaudio' });
+            const video = ytdl(url, { quality: 'highestvideo' });
         }
 
         const video = await ytdl(url, options)
@@ -110,9 +117,22 @@ export default new Command({
                     await interaction.editReply('Subiendo archivo...')
                     await interaction.editReply({ files: [`resources/download/1_${title_video}`] });
                     await interaction.editReply('¡Subida finalizada!')
-
+                    
+                    // delete files
+                    const files = [`resources/download/${title_video}`, `resources/download/1_${title_video}`];
+                    return deleteFiles(files, function(err) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          console.log('All files removed!');
+                        }
+                      });
                 }
             })
+            .on('progress', p => {
+                readline.cursorTo(process.stdout, 0);
+                process.stdout.write(`${p.targetSize}kb downloaded`);
+              })
             .on('error', function(err){
                 console.log('error: ', err);
             }).run()
@@ -120,6 +140,21 @@ export default new Command({
 
     }
 });
+
+function deleteFiles(files, callback) {
+    let i = files.length;
+    files.forEach(function(filepath) {
+      fs.unlink(filepath, function(err) {
+        i--;
+        if (err) {
+            callback(err);
+            return;
+            } else if (i <= 0) {
+                callback(null);
+            }
+        });
+    });
+}
 
 async function timeToSeconds(time: string) {
     const time_array = time.split(':').reverse().map(x=>+x);
