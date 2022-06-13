@@ -9,7 +9,9 @@ const vndb = new VNDB('clientname', {
 
 const errors = [];
 const languages = ['es', 'en', 'ja'];
-const deepApi = require('../../utilities/deepAPI');
+
+var path = require('path');
+const deepApi = require(path.resolve(__dirname, '../../utilities/deepAPI'));
 
 const duration = {
 	5: 'Muy largo (>50 horas)',
