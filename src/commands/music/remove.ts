@@ -1,7 +1,4 @@
 import { Command } from "../../structures/Command";
-const { MessageEmbed } = require('discord.js');
-const { distube } = require('./play.ts')
-const progressbar = require('string-progressbar');
 
 export default new Command({
     name: 'remove',
@@ -14,7 +11,7 @@ export default new Command({
           required: true,
     }],
     run: async ({ interaction, client }) => {
-        let queue = distube.getQueue(interaction.guildId);
+        let queue = client.distube.getQueue(interaction.guildId);
         let position = interaction.options.getInteger("posicion");
         if (position > 0 && position <= queue.songs.length-1) {
             queue.songs.splice(position, 1);

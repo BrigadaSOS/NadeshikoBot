@@ -1,5 +1,5 @@
 import { Command } from "../../structures/Command";
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton  } = require('discord.js');
 
 const VNDB = require('vndb-api');
 const vndb = new VNDB('clientname', {
@@ -42,6 +42,7 @@ export default new Command({
         let response = null;
         let response_random = null;
         let search_value = null;
+
 
 		async function searchRandomVN(search_value) {
 			return vndb.query(`get vn basic,details,stats,relations,screens (id = ${search_value})`);
@@ -159,7 +160,8 @@ export default new Command({
         
         let image_cover = null;
         let nsfw_nonsfw_images = no_nsfw_images.concat(nsfw_images);
-
+		let current_index_image; 
+		
 		// Checker NSFW
         if (interaction.channel.type == "GUILD_TEXT"){
             if (interaction.channel.nsfw) {
@@ -171,11 +173,26 @@ export default new Command({
                 }else{
                     image_cover = response.items[0].image;
                 }
+				current_index_image= Math.floor(Math.random()*no_nsfw_images.length);
                 choosen_image = no_nsfw_images[Math.floor(Math.random()*no_nsfw_images.length)];;	
             }
         }
 		console.log(choosen_image);
 		// eslint-disable-next-line prefer-const
+		let button_left = new MessageButton()
+			.setCustomId('left_vn')
+			.setLabel('←')
+			.setStyle('SUCCESS')
+			.setDisabled(true);
+
+		let button_right = new MessageButton()
+			.setCustomId('right_vn')
+			.setLabel('→')
+			.setStyle('SUCCESS')
+
+		const row = new MessageActionRow()
+			.addComponents(button_left, button_right);
+
 		let embed = new MessageEmbed()
             .setColor('eb868f')
 			.setAuthor('VNDB', '', 'https://vndb.org/')
@@ -194,6 +211,65 @@ export default new Command({
 				{ name: '❯ Relacionado', value: '' + title_related || 'Ninguna' },
 			);
 
-		interaction.editReply({ embeds: [embed] });
+		interaction.editReply({ embeds: [embed], components: [row] });
+
+
+		const collector = interaction.channel.createMessageComponentCollector();
+
+		collector.on('collect', async i => {
+			
+			if (i.customId === 'right_vn') {
+				let amount_images = no_nsfw_images.length;
+				console.log(current_index_image + ' ' + amount_images);
+				
+				if(current_index_image < amount_images){
+					current_index_image++;
+					embed.setImage(no_nsfw_images[current_index_image]);
+
+					if(current_index_image === amount_images-1){
+						button_right.setDisabled(true);
+					}else{
+						button_right.setDisabled(false);
+					}
+
+					if(current_index_image === 0){
+						button_left.setDisabled(true);
+					}else{
+						button_left.setDisabled(false);
+					}
+
+					await i.update({ embeds: [embed], components: [row] });
+				}
+			}else if (i.customId === 'left_vn') {
+				let amount_images = no_nsfw_images.length;
+				console.log(current_index_image + ' ' + amount_images);
+
+				if(current_index_image <= amount_images-1){
+					current_index_image--;
+					embed.setImage(no_nsfw_images[current_index_image]);
+
+					if(current_index_image === amount_images-1){
+						button_right.setDisabled(true);
+					}else{
+						button_right.setDisabled(false);
+					}
+
+					if(current_index_image === 1){
+						button_left.setDisabled(true);
+					}else{
+						button_left.setDisabled(false);
+					}
+
+					await i.update({ embeds: [embed], components: [row] });
+
+				}
+
+			}
+
+		});
+
+		collector.on('end', collected => console.log(`Collected ${collected.size} items`));
+
     }
 });
+

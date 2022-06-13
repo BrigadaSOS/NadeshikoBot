@@ -1,11 +1,10 @@
 import { Command } from "../../structures/Command";
-const { distube } = require('./play.ts')
 
 export default new Command({
     name: 'skip',
 	description: 'Omite un audio.',
     run: async ({ interaction, client }) => {
-        const queue = distube.getQueue(interaction.guildId);
+        const queue = client.distube.getQueue(interaction.guildId);
 
         if(!queue){
             return interaction.editReply('No hay queue disponible.')

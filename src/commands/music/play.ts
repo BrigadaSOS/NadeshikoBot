@@ -2,13 +2,6 @@ import { Command } from "../../structures/Command";
 import { ExtendedClient } from "../../structures/Client";
 export const client = new ExtendedClient();
 const { SpotifyPlugin } = require("@distube/spotify");
-const { MessageEmbed } = require('discord.js');
-const DisTube = require('distube');
-
-export const distube = new DisTube.default(client, {
-    plugins: [new SpotifyPlugin()],
-    updateYouTubeDL: false,
-});
 
 let lastInteraction = null;
 
@@ -32,13 +25,13 @@ export default new Command({
             return;
         }
         try {
-            await playSong(interaction, voice, song);
+            await playSong(interaction, voice, song, client);
         } catch (error) {
             interaction.editReply('Video no disponible.')
         }
         
         try {
-            let queue = await distube.getQueue(interaction.guildId);                
+            let queue = client.distube.getQueue(interaction.guildId);                
             interaction.editReply(`Se ha añadido la canción: \`${queue.songs[queue.songs.length-1].name}\` - \`${queue.songs[queue.songs.length-1].formattedDuration}\`.`)
             
 
@@ -48,26 +41,11 @@ export default new Command({
 
 
 	},
+
 });
 
-async function playSong(interaction, voice, song){
+async function playSong(interaction, voice, song, client){
     lastInteraction = interaction;
-    await distube.play(voice, song, {textChannel: interaction.channel});
+    await client.distube.play(voice, song, {textChannel: interaction.channel});
 }
 
-
-distube.on("playSong", async (queue, song) => {
-        const playEmbed = new MessageEmbed()
-        .setColor('eb868f')
-        .setTitle(`**Reproduciendo audio**`)
-        .setDescription(`${song.name}`)
-        .setThumbnail(song.thumbnail)
-        .setTimestamp()
-        .setURL(song.url)
-        queue.textChannel.send({ embeds: [playEmbed] })  
-    
-});
-
-distube.on("error", (channel, error) => {
-    console.log(error);
-});

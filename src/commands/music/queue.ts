@@ -1,4 +1,3 @@
-const { distube } = require('./play.ts')
 import { Command } from "../../structures/Command";
 const { MessageEmbed } = require('discord.js');
 
@@ -7,7 +6,7 @@ export default new Command({
 	description: 'Lista de audios en la queue.',
     run: async ({ interaction, client }) => {
 
-        let queue = distube.getQueue(interaction.guildId);
+        let queue = client.distube.getQueue(interaction.guildId);
         if(!queue){
             return interaction.editReply('No hay contenido en el queue.')
         }
@@ -29,4 +28,4 @@ export default new Command({
         .setDescription(base_text)
         interaction.editReply({ embeds: [queueEmbed] });
     }
-})
+});

@@ -51,7 +51,7 @@ export default new Command({
         },
     ],
     run: async ({ interaction, client }) => {
-
+        
         let url = interaction.options.getString('url');
         let start = interaction.options.getString('start');
         let end = interaction.options.getString('end');

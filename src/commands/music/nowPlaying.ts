@@ -1,14 +1,22 @@
 import { Command } from "../../structures/Command";
 const { MessageEmbed } = require('discord.js');
-const { distube } = require('./play.ts')
 const progressbar = require('string-progressbar');
 
 export default new Command({
     name: 'nowplaying',
 	description: 'Muestra el audio actual que está sonando.',
     run: async ({ interaction, client }) => {
-        let queue = distube.getQueue(interaction.guildId);
-        const song = queue.songs[0];
+
+        let queue;
+        let song;
+
+        try {
+            queue = client.distube.getQueue(interaction.guildId);
+            song = queue.songs[0];             
+        } catch (error) {
+            console.log(error);
+            return interaction.editReply('No hay queue disponible.')
+        }
 
         // Time in seconds
         let end_time = song.duration;
