@@ -68,7 +68,6 @@ export class ExtendedClient extends Client {
                 // While playing
                 leaveOnStop: false,
                 leaveOnEmpty: true,
-                leaveOnFinish: true,
                 // Emits
                 emitNewSongOnly: true,
                 emitAddSongWhenCreatingQueue: false,
