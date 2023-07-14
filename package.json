@@ -1,47 +1,23 @@
 {
-	"name": "discordbot-template",
-	"version": "3.3.1",
-	"description": "A modified template based on discordjs.guide to create your own discord-js based bot!",
-	"funding": "https://ko-fi.com/namanvrati",
+	"name": "nadeshiko-bot",
+	"version": "2.0.0",
+	"description": "Nadeshiko bot for discord",
 	"types": "./typings.d.ts",
 	"main": "bot.js",
 	"scripts": {
 		"start": "node bot.js",
 		"dev": "nodemon bot.js"
 	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/NamVr/DiscordBot-Template.git"
-	},
 	"keywords": [
 		"discord-js"
 	],
-	"author": {
-		"name": "Naman Vrati",
-		"url": "https://github.com/NamVr",
-		"email": "info@namanvrati.cf"
-	},
-	"contributors": [
-		{
-			"name": "Krish Garg",
-			"url": "https://github.com/KrishGarg"
-		},
-		{
-			"name": "Thomas Fournier",
-			"email": "thomas@artivain.com",
-			"url": "https://github.com/GoudronViande24"
-		}
-	],
 	"license": "Apache-2.0",
-	"bugs": {
-		"url": "https://github.com/NamVr/DiscordBot-Template/issues"
-	},
-	"homepage": "https://github.com/NamVr/DiscordBot-Template#readme",
 	"dependencies": {
 		"@discordjs/rest": "^1.0.0",
 		"axios": "^1.2.3",
 		"discord-api-types": "^0.36.2",
 		"discord.js": "^14.10.2",
+		"dotenv": "^16.3.1",
 		"nodemon": "^2.0.22",
 		"vndb-api": "^1.0.3"
 	}

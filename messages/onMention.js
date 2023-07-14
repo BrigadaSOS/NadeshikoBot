@@ -4,7 +4,7 @@
  * @since 3.0.0
  */
 
-const { prefix } = require("../config.json");
+const { PREFIX } = require("../bot-config.js");
 
 module.exports = {
 	/**
@@ -15,7 +15,7 @@ module.exports = {
 
 	async execute(message) {
 		return message.channel.send(
-			`Hi ${message.author}! My prefix is \`${prefix}\`, get help by \`${prefix}help\``
+			`Hi ${message.author}! My prefix is \`${PREFIX}\`, get help by \`${prefix}help\``
 		);
 	},
 };

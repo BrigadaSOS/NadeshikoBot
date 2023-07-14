@@ -8,7 +8,7 @@
 // Declares constants (destructured) to be used in this file.
 
 const { Collection, ChannelType } = require("discord.js");
-const { prefix, owner } = require("../config.json");
+const { PREFIX, OWNER_ID } = require("../bot-config");
 
 // Prefix regex, we will use to match in mention prefix.
 
@@ -46,7 +46,7 @@ module.exports = {
 		 * @type {String}
 		 */
 
-		const checkPrefix = prefix.toLowerCase();
+		const checkPrefix = PREFIX.toLowerCase();
 
 		/**
 		 * @description Regex expression for mention prefix
@@ -125,7 +125,7 @@ module.exports = {
 			let reply = `You didn't provide any arguments, ${message.author}!`;
 
 			if (command.usage) {
-				reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``;
+				reply += `\nThe proper usage would be: \`${PREFIX}${command.name} ${command.usage}\``;
 			}
 
 			return message.channel.send({ content: reply });
