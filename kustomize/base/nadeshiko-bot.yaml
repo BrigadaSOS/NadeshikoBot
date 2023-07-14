@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nadeshiko-bot
+  namespace: nadeshiko-bot
+  labels:
+    app: nadeshiko-bot
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: nadeshiko-bot
+  template:
+    metadata:
+      labels:
+        app: nadeshiko-bot
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - image: nadeshiko-bot
+          name: nadeshiko-bot
+          envFrom:
+            - configMapRef:
+                name: nadeshiko-bot-config
+          ports:
+            - name: http
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nadeshiko-bot
+  namespace: nadeshiko-bot
+  labels:
+    app: nadeshiko-bot
+spec:
+  selector:
+    app: nadeshiko-bot
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
