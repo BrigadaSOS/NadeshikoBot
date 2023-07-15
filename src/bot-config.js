@@ -2,11 +2,8 @@ const fs = require("fs");
 require("dotenv").config();
 
 // Can either load env variables or use a config.json file if found
-let { TOKEN } = process.env;
-let { CLIENT_ID } = process.env;
-let { TEST_GUILD_ID } = process.env;
-let { PREFIX } = process.env;
-let { OWNER_ID } = process.env;
+let { TOKEN, CLIENT_ID, TEST_GUILD_ID, PREFIX, OWNER_ID, NADEDB_API_KEY } =
+  process.env;
 
 if (fs.existsSync("./config.json")) {
   // eslint-disable-next-line global-require
@@ -16,6 +13,7 @@ if (fs.existsSync("./config.json")) {
   TEST_GUILD_ID ||= config.test_guild_id;
   PREFIX ||= config.prefix;
   OWNER_ID ||= config.owner_id;
+  NADEDB_API_KEY ||= config.nadedb_api_key;
 }
 
 module.exports = {
@@ -24,4 +22,5 @@ module.exports = {
   TEST_GUILD_ID,
   PREFIX,
   OWNER_ID,
+  NADEDB_API_KEY,
 };

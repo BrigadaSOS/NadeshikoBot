@@ -116,13 +116,11 @@ module.exports = {
 
       // eslint-disable-next-line consistent-return
       collector.on("collect", async (i) => {
-        console.log("COLLECT START");
         if (!i.user.id === interaction.user.id) {
-          await interaction.reply({
+          return interaction.reply({
             content: "No puedes responder a una interacción que no es tuya.",
             ephemeral: true,
           });
-          return;
         }
 
         if (i.customId === "select_item_vn") {

@@ -12,6 +12,7 @@ module.exports = {
     "max-classes-per-file": "off",
     "no-unused-vars": "off",
     "global-require": "off",
+    camelcase: "off",
     "import/no-dynamic-require": "off",
     "no-underscore-dangle": ["error", { allow: ["_id"] }],
     "no-restricted-syntax": [

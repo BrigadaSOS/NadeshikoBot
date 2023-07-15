@@ -1,5 +1,7 @@
+const { Events } = require("discord.js");
+
 module.exports = {
-  name: "interactionCreate",
+  name: Events.InteractionCreate,
 
   /**
    * @param {import('discord.js').ButtonInteraction & { client: import('../typings').Client }} interaction The interaction which was created
@@ -10,29 +12,16 @@ module.exports = {
     const { client } = interaction;
 
     // Checks if the interaction is a button interaction (to prevent weird bugs)
-
     if (!interaction.isButton()) return;
 
     const command = client.buttonCommands.get(interaction.customId);
-
-    // If the interaction is not a command in cache, return error message.
-    // You can modify the error message at ./messages/defaultButtonError.js file!
-
-    if (!command) {
-      await require("../messages/defaultButtonError").execute(interaction);
-      return;
-    }
-
-    // A try to execute the interaction.
+    if (!command) return;
 
     try {
       await command.execute(interaction);
     } catch (err) {
       console.error(err);
-      await interaction.reply({
-        content: "There was an issue while executing that button!",
-        ephemeral: true,
-      });
+      await require("../messages/defaultError").execute(interaction);
     }
   },
 };
