@@ -107,31 +107,33 @@ module.exports = {
         time: 60000,
       });
 
-      collector.on("end", (collected) => {
+      collector.on("end", async (collected) => {
         console.log(`Collected ${collected.size} items`);
-        return interaction.editReply({
+        await interaction.editReply({
           components: [],
         });
       });
 
       // eslint-disable-next-line consistent-return
       collector.on("collect", async (i) => {
+        console.log("COLLECT START");
         if (!i.user.id === interaction.user.id) {
-          return interaction.reply({
+          await interaction.reply({
             content: "No puedes responder a una interacción que no es tuya.",
             ephemeral: true,
           });
+          return;
         }
 
         if (i.customId === "select_item_vn") {
           if (i.values[0] === "close") {
             try {
-              return await interaction.editReply({
-                content: "Resultado de la busqueda",
+              await interaction.editReply({
+                content: "Resultado de la búsqueda",
                 components: [],
               });
             } catch {
-              return interaction.deleteReply();
+              await interaction.deleteReply();
             }
           } else {
             const id = i.values[0];
@@ -141,8 +143,7 @@ module.exports = {
                 "title, description, votecount, image.url, alttitle, languages, released, platforms, image.sexual, length, length_minutes, rating, screenshots.url",
             });
 
-            // Data obtained
-            console.log(response.data);
+            console.log("Data obtained", response.data);
             const { title } = response.data.results[0];
             let description = `${response.data.results[0].description}\n`;
             const imageCover = response.data.results[0].image.url;
@@ -188,6 +189,35 @@ module.exports = {
 
             description += `\n**Lenguajes disponibles**\n${availableLanguages} `;
 
+            const fields = [
+              {
+                name: "❯ Titulo original",
+                value: originalTitle || "No disponible",
+                inline: true,
+              },
+              { name: "❯ Lanzamiento", value: releaseDate, inline: true },
+              {
+                name: "❯ Desarrollador",
+                value: developer != null ? `${developer}` : "No disponible",
+                inline: true,
+              },
+              {
+                name: "❯ Duración",
+                value: durationNorm[duration]
+                  ? `${durationNorm[duration]} (∼${durationAvg} horas)`
+                  : "No disponible",
+                inline: true,
+              },
+            ];
+
+            if (rating) {
+              fields.push({
+                name: "❯ Calificación",
+                value: `${rating}/100 de ${voteCount} votos`,
+                inline: true,
+              });
+            }
+
             // Sending data in embed message
             const embedVN = new EmbedBuilder()
               .setURL(`https://vndb.org/${id}`)
@@ -195,34 +225,10 @@ module.exports = {
               .setColor("eb868f")
               .setThumbnail(imageCover)
               .setDescription(description)
-              .addFields(
-                {
-                  name: "❯ Titulo original",
-                  value: originalTitle || "No disponible",
-                  inline: true,
-                },
-                { name: "❯ Lanzamiento", value: releaseDate, inline: true },
-                {
-                  name: "❯ Desarrollador",
-                  value: developer != null ? `${developer}` : "No disponible",
-                  inline: true,
-                },
-                {
-                  name: "❯ Duración",
-                  value: durationNorm[duration]
-                    ? `${durationNorm[duration]} (∼${durationAvg} horas)`
-                    : "No disponible",
-                  inline: true,
-                },
-                {
-                  name: "❯ Calificación",
-                  value: `${rating}/100 de ${voteCount} votos`,
-                  inline: true,
-                },
-              );
+              .addFields(...fields);
 
             await interaction.editReply({
-              content: "Resultado de la busqueda",
+              content: "Resultado de la búsqueda",
               embeds: [embedVN],
             });
           }

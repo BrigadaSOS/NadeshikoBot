@@ -1,5 +1,7 @@
+const { Events } = require("discord.js");
+
 module.exports = {
-  name: "interactionCreate",
+  name: Events.InteractionCreate,
 
   /**
    * @param {import('discord.js').SelectMenuInteraction & { client: import('../typings').Client }} interaction The interaction which was created
@@ -15,13 +17,8 @@ module.exports = {
 
     const command = client.selectCommands.get(interaction.customId);
 
-    // If the interaction is not a command in cache, return error message.
-    // You can modify the error message at ./messages/defaultSelectError.js file!
-
-    if (command) {
-      await require("../messages/defaultSelectError").execute(interaction);
-      return;
-    }
+    // If the interaction is not a command just return, in case its handled by a collector
+    if (!command) return;
 
     // A try to execute the interaction.
     try {
