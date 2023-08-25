@@ -39,6 +39,8 @@ module.exports = {
       "https://api.brigadasos.xyz/api/v1/search/anime/sentence",
       {
         query,
+        content_sort: "random",
+        random_seed: Math.floor(Math.random() * 65535),
         limit: 5,
       },
       {
@@ -56,26 +58,36 @@ module.exports = {
     const sentence = sentences[index];
 
     const { name_anime_en, season, episode } = sentence.basic_info;
-    const { uuid, content_en, content_es, content_highlight } =
-      sentence.segment_info;
-    const { path_image, path_audio } = sentence.media_info;
+    const {
+      uuid,
+      content_en,
+      content_en_highlight,
+      content_es,
+      content_es_highlight,
+      content_jp,
+      content_jp_highlight,
+    } = sentence.segment_info;
+    const { path_audio, path_video } = sentence.media_info;
 
-    const content_highlight_parsed = content_highlight.replace(
-      /<span class="keyword">(.*?)<\/span>/g,
+    const jp_sentence = (content_jp_highlight || content_jp || "").replace(
+      /<em>(.*?)<\/em>/g,
+      "**$1**",
+    );
+    const es_sentence = (content_es_highlight || content_es || "").replace(
+      /<em>(.*?)<\/em>/g,
+      "**$1**",
+    );
+    const en_sentence = (content_en_highlight || content_en || "").replace(
+      /<em>(.*?)<\/em>/g,
       "**$1**",
     );
 
-    let description = `:flag_jp: ${content_highlight_parsed}`;
-    const sentenceFields = [
-      { name: ":flag_jp:", value: content_highlight_parsed },
-    ];
+    let description = `:flag_jp:  ${jp_sentence}`;
     if (content_es) {
-      description += `\n\n:flag_es: ${content_es}`;
-      sentenceFields.push({ name: ":flag_es:", value: content_es });
+      description += `\n\n:flag_es:  ${content_es}`;
     }
-    if (content_en) {
-      description += `\n\n:flag_us: ${content_en}`;
-      sentenceFields.push({ name: ":flag_us:", value: content_en });
+    if (en_sentence) {
+      description += `\n\n:flag_us:  ${content_en}`;
     }
 
     let footerString = `${name_anime_en} • `;
@@ -92,11 +104,6 @@ module.exports = {
         value: path_audio,
       },
     ];
-
-    // TODO: Include audio as attachment
-    // const res = await axios.get(path_audio, {
-    //   responseType: "arraybuffer",
-    // });
 
     const prev = new ButtonBuilder()
       .setCustomId("prev")
@@ -120,12 +127,17 @@ module.exports = {
 
     // Sending data in embed message
     const embedSentence = new EmbedBuilder()
-      .setURL(`https://db.brigadasos.xyz`)
+      .setURL(`https://db.brigadasos.xyz/search/sentences?uuid=${uuid}`)
       .setTitle(query)
-      // .setDescription(description)
-      .addFields(...sentenceFields)
-      .addFields(...mediaFields)
-      .setImage(path_image)
+      .setFields(
+        ...[
+          {
+            name: "Frase",
+            value: description,
+          },
+        ],
+        ...mediaFields,
+      )
       .setFooter({
         text: footerString,
       });
@@ -134,6 +146,8 @@ module.exports = {
       embeds: [embedSentence],
       components: [row],
     });
+
+    const mediaMessage = await interaction.followUp(path_video);
 
     const filter = (i) => {
       i.deferUpdate();
@@ -163,26 +177,36 @@ module.exports = {
       const sentence = sentences[index];
 
       const { name_anime_en, season, episode } = sentence.basic_info;
-      const { uuid, content_en, content_es, content_highlight } =
-        sentence.segment_info;
-      const { path_image, path_audio } = sentence.media_info;
+      const {
+        uuid,
+        content_en,
+        content_en_highlight,
+        content_es,
+        content_es_highlight,
+        content_jp,
+        content_jp_highlight,
+      } = sentence.segment_info;
+      const { path_audio, path_video } = sentence.media_info;
 
-      const content_highlight_parsed = content_highlight.replace(
-        /<span class="keyword">(.*?)<\/span>/g,
+      const jp_sentence = (content_jp_highlight || content_jp || "").replace(
+        /<em>(.*?)<\/em>/g,
+        "**$1**",
+      );
+      const es_sentence = (content_es_highlight || content_es || "").replace(
+        /<em>(.*?)<\/em>/g,
+        "**$1**",
+      );
+      const en_sentence = (content_en_highlight || content_en || "").replace(
+        /<em>(.*?)<\/em>/g,
         "**$1**",
       );
 
-      let description = `:flag_jp: ${content_highlight_parsed}`;
-      const sentenceFields = [
-        { name: ":flag_jp:", value: content_highlight_parsed },
-      ];
+      let description = `:flag_jp:  ${jp_sentence}`;
       if (content_es) {
-        description += `\n\n:flag_es: ${content_es}`;
-        sentenceFields.push({ name: ":flag_es:", value: content_es });
+        description += `\n\n:flag_es:  ${content_es}`;
       }
-      if (content_en) {
-        description += `\n\n:flag_us: ${content_en}`;
-        sentenceFields.push({ name: ":flag_us:", value: content_en });
+      if (en_sentence) {
+        description += `\n\n:flag_us:  ${content_en}`;
       }
 
       let footerString = `${name_anime_en} • `;
@@ -199,11 +223,6 @@ module.exports = {
           value: path_audio,
         },
       ];
-
-      // TODO: Include audio as attachment
-      // const res = await axios.get(path_audio, {
-      //   responseType: "arraybuffer",
-      // });
 
       const prev = new ButtonBuilder()
         .setCustomId("prev")
@@ -227,12 +246,17 @@ module.exports = {
 
       // Sending data in embed message
       const embedSentence = new EmbedBuilder()
-        .setURL(`https://db.brigadasos.xyz`)
+        .setURL(`https://db.brigadasos.xyz/search/sentences?uuid=${uuid}`)
         .setTitle(query)
-        // .setDescription(description)
-        .addFields(...sentenceFields)
-        .addFields(...mediaFields)
-        .setImage(path_image)
+        .setFields(
+          ...[
+            {
+              name: "Frase",
+              value: description,
+            },
+          ],
+          ...mediaFields,
+        )
         .setFooter({
           text: footerString,
         });
@@ -241,6 +265,8 @@ module.exports = {
         embeds: [embedSentence],
         components: [row],
       });
+
+      await mediaMessage.edit(path_video);
     });
   },
 };
