@@ -13,6 +13,95 @@ const { Readable } = require("stream");
 
 const { NADEDB_API_KEY } = require("../../../bot-config");
 
+const buildResponseBody = (query, sentences, index) => {
+  const sentence = sentences[index];
+
+  const { name_anime_en, season, episode } = sentence.basic_info;
+  const {
+    uuid,
+    content_en,
+    content_en_highlight,
+    content_es,
+    content_es_highlight,
+    content_jp,
+    content_jp_highlight,
+  } = sentence.segment_info;
+  const { path_video } = sentence.media_info;
+
+  const jp_sentence = (content_jp_highlight || content_jp || "").replace(
+    /<em>(.*?)<\/em>/g,
+    "**$1**",
+  );
+  const es_sentence = (content_es_highlight || content_es || "").replace(
+    /<em>(.*?)<\/em>/g,
+    "**$1**",
+  );
+  const en_sentence = (content_en_highlight || content_en || "").replace(
+    /<em>(.*?)<\/em>/g,
+    "**$1**",
+  );
+
+  let description = `### [${index + 1}/${
+    sentences.length
+  }] Resultados:\n> :flag_jp:  ${jp_sentence}`;
+  if (es_sentence) {
+    description += `\n> :flag_es:  ${es_sentence}`;
+  }
+  if (en_sentence) {
+    description += `\n> :flag_us:  ${en_sentence}`;
+  }
+
+  description += `\n\nhttps://db.brigadasos.xyz/search/sentences?query=${query}`;
+
+  let sourceString = `### Fuente:\n${name_anime_en} • `;
+  if (season) {
+    sourceString += `Temporada ${season},`;
+  }
+  if (episode) {
+    sourceString += ` Episodio ${episode}`;
+  }
+  sourceString += `\n${path_video}`;
+
+  description += `\n${sourceString}`;
+
+  const first = new ButtonBuilder()
+    .setCustomId("first")
+    .setEmoji("⏮️")
+    .setStyle(1);
+
+  const last = new ButtonBuilder()
+    .setCustomId("last")
+    .setEmoji("⏭️")
+    .setStyle(1);
+
+  const prev = new ButtonBuilder()
+    .setCustomId("prev")
+    .setEmoji("◀")
+    .setStyle(1);
+
+  const next = new ButtonBuilder()
+    .setCustomId("next")
+    .setEmoji("▶")
+    .setStyle(1);
+
+  if (index === 0) {
+    first.setDisabled(true);
+    prev.setDisabled(true);
+  }
+
+  if (index === sentences.length - 1) {
+    last.setDisabled(true);
+    next.setDisabled(true);
+  }
+
+  const row = new ActionRowBuilder().addComponents(first, prev, next, last);
+
+  return {
+    content: description,
+    components: [row],
+  };
+};
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("nadedb")
@@ -41,7 +130,7 @@ module.exports = {
         query,
         content_sort: "random",
         random_seed: Math.floor(Math.random() * 65535),
-        limit: 5,
+        limit: 10,
       },
       {
         headers: {
@@ -50,104 +139,25 @@ module.exports = {
       },
     );
 
-    // TODO: Check response is 2XX
-    console.log("Response", response.data);
-
-    let index = 1;
+    console.log("Response", response);
+    if (response.status !== 200) {
+      await interaction.editReply(
+        "NadeDB no está disponible. Inténtelo más tarde o visite la página web: https://db.brigadasos.xyz",
+      );
+      return;
+    }
     const { sentences } = response.data;
-    const sentence = sentences[index];
 
-    const { name_anime_en, season, episode } = sentence.basic_info;
-    const {
-      uuid,
-      content_en,
-      content_en_highlight,
-      content_es,
-      content_es_highlight,
-      content_jp,
-      content_jp_highlight,
-    } = sentence.segment_info;
-    const { path_audio, path_video } = sentence.media_info;
+    if (sentences === undefined || sentences.length === 0) {
+      await interaction.editReply("No se han encontrado resultados.");
+      return;
+    }
 
-    const jp_sentence = (content_jp_highlight || content_jp || "").replace(
-      /<em>(.*?)<\/em>/g,
-      "**$1**",
+    let index = 0;
+
+    const result = await interaction.editReply(
+      buildResponseBody(query, sentences, index),
     );
-    const es_sentence = (content_es_highlight || content_es || "").replace(
-      /<em>(.*?)<\/em>/g,
-      "**$1**",
-    );
-    const en_sentence = (content_en_highlight || content_en || "").replace(
-      /<em>(.*?)<\/em>/g,
-      "**$1**",
-    );
-
-    let description = `:flag_jp:  ${jp_sentence}`;
-    if (content_es) {
-      description += `\n\n:flag_es:  ${content_es}`;
-    }
-    if (en_sentence) {
-      description += `\n\n:flag_us:  ${content_en}`;
-    }
-
-    let footerString = `${name_anime_en} • `;
-    if (season) {
-      footerString += `Temporada ${season},`;
-    }
-    if (episode) {
-      footerString += ` Episodio ${episode}`;
-    }
-
-    const mediaFields = [
-      {
-        name: "Audio",
-        value: path_audio,
-      },
-    ];
-
-    const prev = new ButtonBuilder()
-      .setCustomId("prev")
-      .setEmoji("◀")
-      .setStyle(1);
-
-    const next = new ButtonBuilder()
-      .setCustomId("next")
-      .setEmoji("▶")
-      .setStyle(1);
-
-    if (index === 0) {
-      prev.setDisabled(true);
-    }
-
-    if (index === sentences.length - 1) {
-      next.setDisabled(true);
-    }
-
-    const row = new ActionRowBuilder().addComponents(prev, next);
-
-    // Sending data in embed message
-    const embedSentence = new EmbedBuilder()
-      .setURL(`https://db.brigadasos.xyz/search/sentences?uuid=${uuid}`)
-      .setTitle(query)
-      .setFields(
-        ...[
-          {
-            name: "Frase",
-            value: description,
-          },
-        ],
-        ...mediaFields,
-      )
-      .setFooter({
-        text: footerString,
-      });
-
-    const result = await interaction.editReply({
-      embeds: [embedSentence],
-      components: [row],
-    });
-
-    const mediaMessage = await interaction.followUp(path_video);
 
     const filter = (i) => {
       i.deferUpdate();
@@ -157,7 +167,7 @@ module.exports = {
     const collector = result.createMessageComponentCollector({
       filter,
       componentType: ComponentType.Button,
-      time: 60000,
+      time: 120000,
     });
 
     collector.on("end", async (i) => {
@@ -167,106 +177,28 @@ module.exports = {
     });
 
     collector.on("collect", async (i) => {
-      console.log(i);
-      if (i.customId === "next") {
-        index += 1;
-      } else if (i.customId === "prev") {
-        index -= 1;
+      switch (i.customId) {
+        case "first":
+          index = 0;
+          break;
+
+        case "next":
+          index += 1;
+          break;
+
+        case "prev":
+          index -= 1;
+          break;
+
+        case "last":
+          index = sentences.length - 1;
+          break;
+
+        default:
+          break;
       }
 
-      const sentence = sentences[index];
-
-      const { name_anime_en, season, episode } = sentence.basic_info;
-      const {
-        uuid,
-        content_en,
-        content_en_highlight,
-        content_es,
-        content_es_highlight,
-        content_jp,
-        content_jp_highlight,
-      } = sentence.segment_info;
-      const { path_audio, path_video } = sentence.media_info;
-
-      const jp_sentence = (content_jp_highlight || content_jp || "").replace(
-        /<em>(.*?)<\/em>/g,
-        "**$1**",
-      );
-      const es_sentence = (content_es_highlight || content_es || "").replace(
-        /<em>(.*?)<\/em>/g,
-        "**$1**",
-      );
-      const en_sentence = (content_en_highlight || content_en || "").replace(
-        /<em>(.*?)<\/em>/g,
-        "**$1**",
-      );
-
-      let description = `:flag_jp:  ${jp_sentence}`;
-      if (content_es) {
-        description += `\n\n:flag_es:  ${content_es}`;
-      }
-      if (en_sentence) {
-        description += `\n\n:flag_us:  ${content_en}`;
-      }
-
-      let footerString = `${name_anime_en} • `;
-      if (season) {
-        footerString += `Temporada ${season},`;
-      }
-      if (episode) {
-        footerString += ` Episodio ${episode}`;
-      }
-
-      const mediaFields = [
-        {
-          name: "Audio",
-          value: path_audio,
-        },
-      ];
-
-      const prev = new ButtonBuilder()
-        .setCustomId("prev")
-        .setEmoji("◀")
-        .setStyle(1);
-
-      const next = new ButtonBuilder()
-        .setCustomId("next")
-        .setEmoji("▶")
-        .setStyle(1);
-
-      if (index === 0) {
-        prev.setDisabled(true);
-      }
-
-      if (index === sentences.length - 1) {
-        next.setDisabled(true);
-      }
-
-      const row = new ActionRowBuilder().addComponents(prev, next);
-
-      // Sending data in embed message
-      const embedSentence = new EmbedBuilder()
-        .setURL(`https://db.brigadasos.xyz/search/sentences?uuid=${uuid}`)
-        .setTitle(query)
-        .setFields(
-          ...[
-            {
-              name: "Frase",
-              value: description,
-            },
-          ],
-          ...mediaFields,
-        )
-        .setFooter({
-          text: footerString,
-        });
-
-      const result = await interaction.editReply({
-        embeds: [embedSentence],
-        components: [row],
-      });
-
-      await mediaMessage.edit(path_video);
+      await interaction.editReply(buildResponseBody(query, sentences, index));
     });
   },
 };
