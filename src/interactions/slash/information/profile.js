@@ -29,11 +29,14 @@ module.exports = {
           member.joinedTimestamp / 1000,
         )}:D> - <t:${Math.floor(member.joinedTimestamp / 1000)}:R>`,
       },
-      {
+    ];
+
+    if (member.roles !== undefined) {
+      fields.push({
         name: "Roles",
         value: member.roles.cache.map((role) => role.toString()).join(", "),
-      },
-    ];
+      });
+    }
 
     fields.push({
       name: "Mensajes enviados",
