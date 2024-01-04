@@ -1,8 +1,6 @@
-const fs = require("fs");
 const { db } = require("../db");
-const config = require("../../config.json");
 
-let ACTIVITY_ROLES_THRESHOLDS = {
+const ACTIVITY_ROLES_THRESHOLDS = {
   200: "795707709403562044",
   1000: "1040491096779792454",
   5000: "1040491093747322890",
@@ -12,13 +10,13 @@ let ACTIVITY_ROLES_THRESHOLDS = {
 };
 
 // Override with other values if defined in the local config for testing
-if (fs.existsSync("./config.json")) {
-  // eslint-disable-next-line global-require
-  const config = require("../../config.json");
-  if (config.activity_roles_thresholds) {
-    ACTIVITY_ROLES_THRESHOLDS = config.activity_roles_thresholds;
-  }
-}
+// if (fs.existsSync("./config.json")) {
+//   // eslint-disable-next-line global-require
+//   const config = require("../../config.json");
+//   if (config.activity_roles_thresholds) {
+//     ACTIVITY_ROLES_THRESHOLDS = config.activity_roles_thresholds;
+//   }
+// }
 
 console.log("INFO:: Activity roles thresholds", ACTIVITY_ROLES_THRESHOLDS);
 

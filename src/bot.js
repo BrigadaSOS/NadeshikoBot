@@ -231,7 +231,7 @@ const commandJsonData = [
        * to ensure they don't get re-deployed on the next restart.
        */
 
-      /* Routes.applicationCommands(CLIENT_ID), */
+      // Routes.applicationCommands(CLIENT_ID),
 
       { body: commandJsonData },
     );

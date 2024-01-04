@@ -1,8 +1,0 @@
-{
-  "token": "",
-  "owner_id": "",
-  "client_id": "",
-  "test_guild_id": "",
-  "database_path": "./db/nadeshiko.db",
-  "activity_roles_thresholds": {}
-}
