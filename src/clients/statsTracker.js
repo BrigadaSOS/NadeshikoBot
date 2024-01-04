@@ -36,8 +36,10 @@ const updateRoleIfRequired = (message, message_count) => {
           member.roles.remove(Object.values(ACTIVITY_ROLES_THRESHOLDS));
           member.roles.add(role_id);
 
+          const role_name = message.guild.roles.cache.get(role_id).name;
+
           message.channel.send(
-            `¡<@${member.user.id}> ha llegado al rango de <@&${role_id}>!`,
+            `¡<@${member.user.id}> ha llegado al rango de **${role_name}**!`,
           );
           console.log(`Role added`);
         }
