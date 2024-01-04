@@ -14,7 +14,7 @@ spec:
       storage: 2Gi
 ---
 apiVersion: apps/v1
-kind: statefulSet
+kind: StatefulSet
 metadata:
   name: nadeshiko-bot
   namespace: nadeshiko-bot
