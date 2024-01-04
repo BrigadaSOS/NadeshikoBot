@@ -1,5 +1,3 @@
-const { PREFIX } = require("../bot-config.js");
-
 module.exports = {
   /**
    * @param {import('discord.js').Message} message The Message Object of the command.
@@ -7,8 +5,6 @@ module.exports = {
    */
 
   async execute(message) {
-    return message.channel.send(
-      `Hi ${message.author}! My prefix is \`${PREFIX}\`, get help by \`${PREFIX}help\``,
-    );
+    return message.channel.send(`Hi ${message.author}!`);
   },
 };

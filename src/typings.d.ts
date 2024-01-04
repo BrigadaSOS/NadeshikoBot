@@ -40,11 +40,6 @@ export interface LegacyCommand {
   args?: boolean;
 
   /**
-   * The cooldown in seconds of this command.
-   */
-  cooldown?: number;
-
-  /**
    * Whether this command is only a bot owner-based command.
    */
   ownerOnly?: boolean;
@@ -52,7 +47,7 @@ export interface LegacyCommand {
   /**
    * The command executor when it is called by the template handler.
    * @param message The message that triggered this command.
-   * @param args The message arguments of the command (seperated by spaces (' ') in an array, this excludes prefix and command/alias itself).
+   * @param args The message arguments of the command (seperated by spaces (' ') in an array.
    */
   execute(
     message: Discord.Message & { client: Client },
@@ -218,11 +213,6 @@ export interface AutocompleteInteraction {
  */
 export interface Client extends Discord.Client {
   /**
-   * Represents a collection of chat-based Message Commands.
-   */
-  commands: Discord.Collection<string, LegacyCommand>;
-
-  /**
    * Represents a collection of Application Commands (Slash Commands).
    */
   slashCommands: Discord.Collection<string, SlashInteractionCommand>;
@@ -246,11 +236,6 @@ export interface Client extends Discord.Client {
    * Represents a collection of ModalSubmit Interactions.
    */
   modalCommands: Discord.Collection<string, ModalInteractionCommand>;
-
-  /**
-   * Represents cooldown collection for Legacy Commands.
-   */
-  cooldowns: Discord.Collection<string, Discord.Collection<string, number>>;
 
   /**
    * Represents a collection of chat-based Trigger Commands.

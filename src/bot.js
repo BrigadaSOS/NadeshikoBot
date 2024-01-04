@@ -7,7 +7,10 @@ const {
   GatewayIntentBits,
   Partials,
 } = require("discord.js");
+
 const { TOKEN, CLIENT_ID, TEST_GUILD_ID } = require("./bot-config");
+
+/** ******************************************************************* */
 
 /**
  * @type {import('./typings').Client}
@@ -18,6 +21,7 @@ const client = new Client({
   // Please add all intents you need, more detailed information @ https://ziad87.net/intents/
   intents: [
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
@@ -48,39 +52,15 @@ for (const file of eventFiles) {
 }
 
 /** ******************************************************************* */
-// Define Collection of Commands, Slash Commands and cooldowns
+// Define Collection of Commands
 
-client.commands = new Collection();
 client.slashCommands = new Collection();
 client.buttonCommands = new Collection();
 client.selectCommands = new Collection();
 client.contextCommands = new Collection();
 client.modalCommands = new Collection();
-client.cooldowns = new Collection();
 client.autocompleteInteractions = new Collection();
 client.triggers = new Collection();
-
-/** ******************************************************************* */
-// Registration of Message-Based Legacy Commands.
-
-/**
- * @type {String[]}
- * @description All command categories aka folders.
- */
-
-const commandFolders = fs.readdirSync("src/commands");
-
-// Loop through all files and store commands in commands collection.
-
-for (const folder of commandFolders) {
-  const commandFiles = fs
-    .readdirSync(`src/commands/${folder}`)
-    .filter((file) => file.endsWith(".js"));
-  for (const file of commandFiles) {
-    const command = require(`./commands/${folder}/${file}`);
-    client.commands.set(command.name, command);
-  }
-}
 
 /** ******************************************************************* */
 // Registration of Slash-Command Interactions.

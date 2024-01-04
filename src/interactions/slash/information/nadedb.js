@@ -1,16 +1,11 @@
 const {
   SlashCommandBuilder,
-  EmbedBuilder,
   ActionRowBuilder,
-  ComponentEmojiResolvable,
   ComponentType,
   ButtonBuilder,
 } = require("discord.js");
 
 const axios = require("axios");
-const fs = require("fs");
-const { Readable } = require("stream");
-
 const { NADEDB_API_KEY } = require("../../../bot-config");
 
 const buildResponseBody = (query, sentences, index) => {
@@ -41,7 +36,7 @@ const buildResponseBody = (query, sentences, index) => {
     "**$1**",
   );
 
-  let description = `### [${index + 1}/${
+  let description = `# [${index + 1}/${
     sentences.length
   }] Resultados:\n> :flag_jp:  ${jp_sentence}`;
   if (es_sentence) {

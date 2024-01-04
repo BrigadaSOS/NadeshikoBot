@@ -9,7 +9,7 @@ module.exports = {
    */
   async execute(message) {
     /**
-     * @description The Message Content of the received message seperated by spaces (' ') in an array, this excludes prefix and command/alias itself.
+     * @description The Message Content of the received message seperated by spaces (' ') in an array.
      */
 
     const args = message.content.split(/ +/);

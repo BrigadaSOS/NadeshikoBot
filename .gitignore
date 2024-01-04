@@ -3,6 +3,7 @@
 .vscode/
 .node-version
 .idea/
+db/
 
 # Logs
 logs
