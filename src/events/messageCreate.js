@@ -13,7 +13,7 @@ module.exports = {
   async execute(message) {
     const { client, guild, channel, content, author } = message;
 
-    if (message.member.roles.cache.has(TESTER_ROLE)) {
+    if (message.member.roles && message.member.roles.cache.has(TESTER_ROLE)) {
       statsTracker.addMessage(message);
     }
 
