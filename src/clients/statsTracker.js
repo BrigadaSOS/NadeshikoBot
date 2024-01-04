@@ -31,7 +31,7 @@ const updateRoleIfRequired = (message, message_count) => {
       ACTIVITY_ROLES_THRESHOLDS,
     )) {
       if (message_count < parseInt(threshold, 10)) {
-        if (!member.roles.cache.has(role_id)) {
+        if (member.roles && !member.roles.cache.has(role_id)) {
           console.log(`Adding role ${role_id} to ${member.id}...`);
           member.roles.remove(Object.values(ACTIVITY_ROLES_THRESHOLDS));
           member.roles.add(role_id);
