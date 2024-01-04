@@ -11,7 +11,11 @@ module.exports = {
    * @description Executes when a message is created and handle it.
    */
   async execute(message) {
-    if (message.member.roles && message.member.roles.cache.has(TESTER_ROLE)) {
+    if (
+      message.member &&
+      message.member.roles &&
+      message.member.roles.cache.has(TESTER_ROLE)
+    ) {
       statsTracker.removeMessage(message);
     }
   },
