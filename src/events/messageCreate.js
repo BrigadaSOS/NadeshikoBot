@@ -12,14 +12,7 @@ module.exports = {
    */
   async execute(message) {
     const { client, guild, channel, content, author } = message;
-
-    if (
-      message.member &&
-      message.member.roles &&
-      message.member.roles.cache.has(TESTER_ROLE)
-    ) {
-      statsTracker.addMessage(message);
-    }
+    statsTracker.addMessage(message);
 
     // Checks if the bot is mentioned in the message all alone and triggers onMention trigger.
     // You can change the behavior as per your liking at ./messages/onMention.js
