@@ -1,7 +1,6 @@
 const { db } = require("../db");
 
 const ACTIVITY_ROLES_THRESHOLDS = {};
-//   = {
 //   200: "795707709403562044",
 //   1000: "1040491096779792454",
 //   5000: "1040491093747322890",
@@ -9,7 +8,7 @@ const ACTIVITY_ROLES_THRESHOLDS = {};
 //   20000: "1040491048050364466",
 //   9999999999: "1040491239751041105",
 // };
-//
+
 console.log("INFO:: Activity roles thresholds", ACTIVITY_ROLES_THRESHOLDS);
 
 /**

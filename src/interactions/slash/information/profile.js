@@ -11,8 +11,8 @@ const { db } = require("../../../db");
 const anilistClient = new Anilist();
 
 const fetchAnilistData = async (anilist_url) => {
-  const split_url = anilist_url.split("/");
-  const username = split_url[split_url.length - 1].trim();
+  const regex = /\/user\/(\w+)/;
+  const username = anilist_url.match(regex)[1];
   let completedAnimeCount = null;
   try {
     await anilistClient.user.all(username).then((data) => {
@@ -376,9 +376,10 @@ const showUserProfile = async (interaction) => {
   let profileStats = {};
 
   try {
-    profileStats = db
-      .prepare("select * from profiles where guid = ? and uid = ?")
-      .get(member.guild.id, member.id) || {};
+    profileStats =
+      db
+        .prepare("select * from profiles where guid = ? and uid = ?")
+        .get(member.guild.id, member.id) || {};
   } catch (err) {
     console.log(`No profile row found for user ${user.id}`);
   }
@@ -420,9 +421,9 @@ const showUserProfile = async (interaction) => {
 
   const statsFields = [];
 
-  let profiles = "";
+  const profiles = [];
   if (profileStats.anilist_user) {
-    profiles += `* **[Anilist]** ${profileStats.anilist_user}\n`;
+    profiles.push(`* **[Anilist]** ${profileStats.anilist_user}`);
     if (profileStats.anilist_completed_count) {
       statsFields.push({
         name: `${
@@ -434,7 +435,7 @@ const showUserProfile = async (interaction) => {
     }
   }
   if (profileStats.myanimelist_user) {
-    profiles += `* **[MyAnimeList]**: ${profileStats.myanimelist_user}\n`;
+    profiles.push(`* **[MyAnimeList]**: ${profileStats.myanimelist_user}`);
     if (profileStats.myanimelist_completed_count) {
       statsFields.push({
         name: `${
@@ -446,7 +447,7 @@ const showUserProfile = async (interaction) => {
     }
   }
   if (profileStats.bookmeter_user) {
-    profiles += `* **[Bookmeter]** ${profileStats.bookmeter_user}\n`;
+    profiles.push(`* **[Bookmeter]** ${profileStats.bookmeter_user}`);
     if (profileStats.bookmeter_completed_count) {
       statsFields.push({
         name: "Libros leídos",
@@ -456,7 +457,7 @@ const showUserProfile = async (interaction) => {
     }
   }
   if (profileStats.vndb_user) {
-    profiles += `* **[vndb]** ${profileStats.vndb_user}\n`;
+    profiles.push(`* **[vndb]** ${profileStats.vndb_user}`);
     if (profileStats.vndb_completed_count) {
       statsFields.push({
         name: "VNs leídas",
@@ -469,7 +470,7 @@ const showUserProfile = async (interaction) => {
   if (profiles !== "") {
     fields.push({
       name: "Perfiles",
-      value: profiles,
+      value: profiles.join("\n"),
       inline: false,
     });
   }
