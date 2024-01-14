@@ -467,7 +467,7 @@ const showUserProfile = async (interaction) => {
     }
   }
 
-  if (profiles !== "") {
+  if (profiles.length > 0) {
     fields.push({
       name: "Perfiles",
       value: profiles.join("\n"),
@@ -478,6 +478,9 @@ const showUserProfile = async (interaction) => {
   if (statsFields.length > 0) {
     fields.push(...statsFields);
   }
+
+  console.log("Debug profile fields");
+  console.log(fields);
 
   const embed = new EmbedBuilder()
     .setTitle(`Información de ${member.user.username} en ${member.guild.name}`)
