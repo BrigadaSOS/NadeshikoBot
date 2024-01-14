@@ -206,41 +206,35 @@ for (const module of selectMenus) {
 
 const rest = new REST().setToken(TOKEN);
 
-const commandJsonData = [
-  ...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
-  ...Array.from(client.contextCommands.values()).map((c) => c.data),
-];
+const updateSlashCommands = async (scope, reset) => {
+  const commandJsonData = [
+    ...Array.from(client.slashCommands.values()).map((c) => c.data.toJSON()),
+    ...Array.from(client.contextCommands.values()).map((c) => c.data),
+  ];
 
-(async () => {
+  const path =
+    scope === "guild"
+      ? Routes.applicationGuildCommands(CLIENT_ID, TEST_GUILD_ID)
+      : Routes.applicationCommands(CLIENT_ID);
+
   try {
-    console.log("Started refreshing application (/) commands.");
-
-    await rest.put(
-      /**
-       * By default, you will be using guild commands during development.
-       * Once you are done and ready to use global commands (which have 1 hour cache time),
-       * 1. Please uncomment the below (commented) line to deploy global commands.
-       * 2. Please comment the below (uncommented) line (for guild commands).
-       */
-
-      Routes.applicationGuildCommands(CLIENT_ID, TEST_GUILD_ID),
-
-      /**
-       * Good advice for global commands, you need to execute them only once to update
-       * your commands to the Discord API. Please comment it again after running the bot once
-       * to ensure they don't get re-deployed on the next restart.
-       */
-
-      // Routes.applicationCommands(CLIENT_ID),
-
-      { body: commandJsonData },
+    console.log(
+      `[${scope} - Reset: ${reset}] Started refreshing application (/) commands.`,
     );
-
-    console.log("Successfully reloaded application (/) commands.");
+    const body = reset ? [] : commandJsonData;
+    await rest.put(path, { body });
+    console.log(
+      `[${scope} - Reset: ${reset}] Successfully reloaded application (/) commands.`,
+    );
+    return true;
   } catch (error) {
     console.error(error);
+    return false;
   }
-})();
+};
+if (TEST_GUILD_ID) {
+  updateSlashCommands("guild", false);
+}
 
 /** ******************************************************************* */
 // Registration of Message Based Chat Triggers
@@ -266,3 +260,7 @@ for (const folder of triggerFolders) {
 
 // Login into your client application with bot's token.
 client.login(TOKEN);
+
+module.exports = {
+  updateSlashCommands,
+};

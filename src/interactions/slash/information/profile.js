@@ -4,6 +4,7 @@ const statsTracker = require("../../../clients/statsTracker");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("perfil")
+    .setDMPermission(false)
     .setDescription("Obtén información de un perfil de usuario.")
     .addUserOption((option) =>
       option
