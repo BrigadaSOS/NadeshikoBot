@@ -6,4 +6,4 @@ namespace: nadeshiko-bot
 images:
 - name: nadeshiko-bot
   newName: ghcr.io/brigadasos/nadeshikobot
-  newTag: v2.2.2
+  newTag: v2.3.1
