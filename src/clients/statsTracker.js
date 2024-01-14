@@ -9,23 +9,20 @@ const ACTIVITY_ROLES_THRESHOLDS = {
   9999999999: "1040491239751041105",
 };
 
-// Override with other values if defined in the local config for testing
-// if (fs.existsSync("./config.json")) {
-//   // eslint-disable-next-line global-require
-//   const config = require("../../config.json");
-//   if (config.activity_roles_thresholds) {
-//     ACTIVITY_ROLES_THRESHOLDS = config.activity_roles_thresholds;
-//   }
-// }
-
 console.log("INFO:: Activity roles thresholds", ACTIVITY_ROLES_THRESHOLDS);
 
 /**
  * @param {import('discord.js').GuildMember } member The user whose role is to be updated.
+ * @param {import('discord.js').Channel } channel The channel where to send the updated message
  * @param message_count The message count of the user.
+ * @param silent If we should send a message to the channel or not.
  */
-const updateRoleIfRequired = (message, message_count) => {
-  const { member } = message;
+const updateRoleIfRequired = (
+  member,
+  channel,
+  message_count,
+  silent = false,
+) => {
   try {
     for (const [threshold, role_id] of Object.entries(
       ACTIVITY_ROLES_THRESHOLDS,
@@ -36,11 +33,15 @@ const updateRoleIfRequired = (message, message_count) => {
           member.roles.remove(Object.values(ACTIVITY_ROLES_THRESHOLDS));
           member.roles.add(role_id);
 
-          const role_name = message.guild.roles.cache.get(role_id).name;
+          const role_name = member.guild.roles.cache.get(role_id).name;
 
-          message.channel.send(
-            `¡<@${member.user.id}> ha llegado al rango de **${role_name}**!`,
-          );
+          if (channel) {
+            channel.send(
+              `¡${
+                silent ? `${member.user.username}` : `<@${member.user.id}>`
+              } ha llegado al rango de **${role_name}**!`,
+            );
+          }
           console.log(`Role added`);
         }
         return;
@@ -70,7 +71,7 @@ const addMessage = (message) => {
 
   const { message_count } = row;
   console.log(`Add: ${message.author.username} has ${message_count} messages`);
-  updateRoleIfRequired(message, message_count);
+  updateRoleIfRequired(message.member, message.channel, message_count);
 };
 
 /**
@@ -87,7 +88,7 @@ const removeMessage = (message) => {
   console.log(
     `Remove: ${message.author.username} has ${message_count} messages`,
   );
-  updateRoleIfRequired(message, message_count);
+  updateRoleIfRequired(message.member, message.channel, message_count);
 };
 
 /**
@@ -109,7 +110,9 @@ const fetchStats = (member) => {
   };
 };
 
-const replaceAllUserStats = (guild_id, input_json) => {
+const replaceAllUserStats = async (guild, channel, input_json) => {
+  const { findGuildMemberByUid } = require("../bot");
+
   for (const [key, value] of Object.entries(input_json)) {
     const uid = key;
     const message_count = value.count;
@@ -117,7 +120,13 @@ const replaceAllUserStats = (guild_id, input_json) => {
 
     db.prepare(
       "insert into message_stats (guid, uid, message_count) values (?, ?, ?) ON CONFLICT (guid, uid) do update set message_count = ?",
-    ).run(guild_id, uid, message_count, message_count);
+    ).run(guild.id, uid, message_count, message_count);
+
+    // eslint-disable-next-line no-await-in-loop
+    const member = await findGuildMemberByUid(guild, uid);
+    if (member) {
+      updateRoleIfRequired(member, channel, message_count, true);
+    }
 
     console.log(
       `[${uid}] Updated successfully. New message count ${message_count}`,

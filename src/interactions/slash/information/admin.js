@@ -2,6 +2,9 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 
 const statsTracker = require("../../../clients/statsTracker");
 
+/**
+ * @param {import('discord.js').Interaction } interaction The interaction which was created.
+ */
 const messageStatsUploadSubcommand = async (interaction) => {
   const input_attachment =
     interaction.options.getAttachment("message_count_file");
@@ -9,8 +12,13 @@ const messageStatsUploadSubcommand = async (interaction) => {
 
   const json_data = await fetch(input_attachment.url).then((res) => res.json()); // Gets the response and returns it as a blob
   console.log("Uploaded JSON:", json_data);
+  console.log(interaction);
 
-  statsTracker.replaceAllUserStats(interaction.guild.id, json_data);
+  await statsTracker.replaceAllUserStats(
+    interaction.guild,
+    interaction.channel,
+    json_data,
+  );
 
   await interaction.editReply("Successfully updated data for all users!!");
 };

@@ -236,6 +236,16 @@ if (TEST_GUILD_ID) {
   updateSlashCommands("guild", false);
 }
 
+async function findGuildMemberByUid(guild, uid) {
+  try {
+    console.log(`Searching member in guild ${guild.id} with name ${uid}...`);
+    return await guild.members.fetch(uid);
+  } catch (error) {
+    console.log(`Member ${guild.id}-${uid} not found`);
+    return undefined;
+  }
+}
+
 /** ******************************************************************* */
 // Registration of Message Based Chat Triggers
 
@@ -263,4 +273,6 @@ client.login(TOKEN);
 
 module.exports = {
   updateSlashCommands,
+  findGuildMemberByUid,
+  client,
 };
