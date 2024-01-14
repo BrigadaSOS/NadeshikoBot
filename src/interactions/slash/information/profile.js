@@ -1,8 +1,4 @@
-const {
-  SlashCommandBuilder,
-  EmbedBuilder,
-  PermissionFlagsBits,
-} = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const cheerio = require("cheerio");
 const Anilist = require("anilist-node");
 const statsTracker = require("../../../clients/statsTracker");
@@ -122,6 +118,9 @@ const syncProfileDataFromExternalLinks = async (interaction) => {
     anilistUpdatedCount = await fetchAnilistData(row.anilist_user);
     if (anilistUpdatedCount) {
       outputMessage += `**[Anilist]** Anime completado: ~~${row.anilist_completed_count}~~ -> **${anilistUpdatedCount}**\n`;
+      db.prepare(
+        "insert into profiles (guid, uid, anilist_completed_count) values (?, ?, ?) ON CONFLICT (guid, uid) do update set anilist_completed_count = ?",
+      ).run(guid, uid, anilistUpdatedCount, anilistUpdatedCount);
       atLeastOneSuccessfulUpdate = true;
     }
   }
@@ -132,6 +131,9 @@ const syncProfileDataFromExternalLinks = async (interaction) => {
 
     if (myanimelistUpdatedCount) {
       outputMessage += `**[MyAnimeList]** Anime completado: ~~${row.myanimelist_completed_count}~~ -> **${myanimelistUpdatedCount}**\n`;
+      db.prepare(
+        "insert into profiles (guid, uid, myanimelist_completed_count) values (?, ?, ?) ON CONFLICT (guid, uid) do update set myanimelist_completed_count = ?",
+      ).run(guid, uid, myanimelistUpdatedCount, myanimelistUpdatedCount);
       atLeastOneSuccessfulUpdate = true;
     }
   }
@@ -142,6 +144,9 @@ const syncProfileDataFromExternalLinks = async (interaction) => {
 
     if (bookmeterUpdatedCount) {
       outputMessage += `**[Bookmeter]** Libros completados: ~~${row.bookmeter_completed_count}~~ -> **${bookmeterUpdatedCount}**\n`;
+      db.prepare(
+        "insert into profiles (guid, uid, bookmeter_completed_count) values (?, ?, ?) ON CONFLICT (guid, uid) do update set bookmeter_completed_count = ?",
+      ).run(guid, uid, bookmeterUpdatedCount, bookmeterUpdatedCount);
       atLeastOneSuccessfulUpdate = true;
     }
   }
@@ -152,6 +157,9 @@ const syncProfileDataFromExternalLinks = async (interaction) => {
 
     if (vndbUpdatedCount) {
       outputMessage += `**[vndb]** VNs completadas: ~~${row.vndb_completed_count}~~ -> **${vndbUpdatedCount}**\n`;
+      db.prepare(
+        "insert into profiles (guid, uid, vndb_completed_count) values (?, ?, ?) ON CONFLICT (guid, uid) do update set vndb_completed_count = ?",
+      ).run(guid, uid, vndbUpdatedCount, vndbUpdatedCount);
       atLeastOneSuccessfulUpdate = true;
     }
   }
