@@ -422,7 +422,7 @@ const showUserProfile = async (interaction) => {
 
   let profiles = "";
   if (profileStats.anilist_user) {
-    profiles += `* **[Anilist]**: ${profileStats.anilist_user}\n`;
+    profiles += `* **[Anilist]** ${profileStats.anilist_user}\n`;
     if (profileStats.anilist_completed_count) {
       statsFields.push({
         name: `${
