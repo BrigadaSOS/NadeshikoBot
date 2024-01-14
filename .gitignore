@@ -3,6 +3,8 @@
 .node-version
 .idea/
 db/
+test_input/
+output.json
 
 # Logs
 logs

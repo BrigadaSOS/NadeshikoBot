@@ -109,8 +109,25 @@ const fetchStats = (member) => {
   };
 };
 
+const replaceAllUserStats = (guild_id, input_json) => {
+  for (const [key, value] of Object.entries(input_json)) {
+    const uid = key;
+    const message_count = value.count;
+    console.log(`[${uid}] Processing ${value.nickname}...`);
+
+    db.prepare(
+      "insert into message_stats (guid, uid, message_count) values (?, ?, ?) ON CONFLICT (guid, uid) do update set message_count = ?",
+    ).run(guild_id, uid, message_count, message_count);
+
+    console.log(
+      `[${uid}] Updated successfully. New message count ${message_count}`,
+    );
+  }
+};
+
 module.exports = {
   addMessage,
   removeMessage,
   fetchStats,
+  replaceAllUserStats,
 };
