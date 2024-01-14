@@ -17,7 +17,6 @@ const fetchAnilistData = async (anilist_url) => {
   try {
     await anilistClient.user.all(username).then((data) => {
       completedAnimeCount = data.statistics.anime.count;
-      console.log(data);
       console.log(`Found ${completedAnimeCount} completed animes!`);
     });
   } catch (err) {
@@ -379,7 +378,7 @@ const showUserProfile = async (interaction) => {
   try {
     profileStats = db
       .prepare("select * from profiles where guid = ? and uid = ?")
-      .get(member.guild.id, member.id);
+      .get(member.guild.id, member.id) || {};
   } catch (err) {
     console.log(`No profile row found for user ${user.id}`);
   }

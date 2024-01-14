@@ -32,7 +32,7 @@ const reloadCommands = async (interaction) => {
 
   if (result) {
     await interaction.editReply(
-      `Successfully ${reset ? "reloaded" : "deleted"} ${scope} commands`,
+      `Successfully ${reset ? "deleted" : "reloaded"} ${scope} commands`,
     );
   } else {
     await interaction.editReply("There was an error. PLease try again later");
