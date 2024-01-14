@@ -36,7 +36,7 @@ const buildResponseBody = (query, sentences, index) => {
     "**$1**",
   );
 
-  let description = `# [${index + 1}/${
+  let description = `### [${index + 1}/${
     sentences.length
   }] Resultados:\n> :flag_jp:  ${jp_sentence}`;
   if (es_sentence) {
