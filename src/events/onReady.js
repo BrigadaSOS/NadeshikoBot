@@ -9,7 +9,7 @@ module.exports = {
    * @description Executes when client is ready (bot initialization).
    */
   execute(client) {
-    const CREATE_INITIAL_TABLE_QUERY = `
+    const CREATE_MESSAGES_TABLE = `
     create table if not exists message_stats
     (
         guid          integer             not null,
@@ -20,8 +20,25 @@ module.exports = {
         primary key (guid, uid)
     );
     `;
+    db.prepare(CREATE_MESSAGES_TABLE).run();
 
-    db.prepare(CREATE_INITIAL_TABLE_QUERY).run();
+    const CREATE_PROFILES_TABLE = `
+    create table if not exists profiles
+    (
+      guid             integer not null,
+      uid              integer not null,
+      anilist_user     text,
+      anilist_completed_count integer,
+      myanimelist_user text,
+      myanimelist_completed_count integer,
+      vndb_user        text,
+      vndb_completed_count integer,
+      bookmeter_user   text,
+      bookmeter_completed_count integer,
+      primary key (guid, uid)
+    );
+    `;
+    db.prepare(CREATE_PROFILES_TABLE).run();
 
     console.log(`Ready! Logged in as ${client.user.tag}`);
   },
