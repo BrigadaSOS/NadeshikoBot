@@ -1,4 +1,5 @@
 const { db } = require("../db");
+const { findGuildMemberByUid } = require("../bot");
 
 const ACTIVITY_ROLES_THRESHOLDS = {
   200: "795707709403562044",
@@ -28,7 +29,12 @@ const updateRoleIfRequired = (
       ACTIVITY_ROLES_THRESHOLDS,
     )) {
       if (message_count < parseInt(threshold, 10)) {
-        if (member.roles && !member.roles.cache.has(role_id)) {
+        if (
+          member.user &&
+          !member.user.bot &&
+          member.roles &&
+          !member.roles.cache.has(role_id)
+        ) {
           console.log(`Adding role ${role_id} to ${member.id}...`);
           member.roles.remove(Object.values(ACTIVITY_ROLES_THRESHOLDS));
           member.roles.add(role_id);
@@ -134,9 +140,83 @@ const replaceAllUserStats = async (guild, channel, input_json) => {
   }
 };
 
+const getMembersRanking = async (member, top = 15, adjacent = 2) => {
+  const { findGuildMemberByUid } = require("../bot");
+
+  let memberRanking = {};
+  const fullRanking = [];
+  const adjacentRanking = [];
+
+  let addedMembers = 0;
+  const rows = db
+    .prepare(
+      `
+      WITH RankedMessages AS (SELECT guid,
+                                     uid,
+                                     message_count,
+                                     ROW_NUMBER() OVER (ORDER BY message_count DESC) AS rank
+                              FROM message_stats
+                              WHERE guid = ?)
+      SELECT cast(guid as text) as guid, cast(uid as text) as uid, message_count, rank
+      FROM RankedMessages
+      ORDER BY message_count DESC;
+    `,
+    )
+    .all(member.guild.id);
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    if (addedMembers < top) {
+      // eslint-disable-next-line no-await-in-loop
+      const rowMember = await findGuildMemberByUid(member.guild, row.uid);
+
+      fullRanking.push({
+        uid: row.uid,
+        username: rowMember ? rowMember.user.username : "????",
+        message_count: row.message_count,
+        rank: row.rank,
+      });
+      addedMembers += 1;
+    }
+
+    if (row.uid === member.user.id) {
+      for (
+        let j = Math.max(row.rank - adjacent - 1, top);
+        j < Math.min(row.rank + adjacent, rows.length);
+        j += 1
+      ) {
+        // eslint-disable-next-line no-await-in-loop
+        const adjacentMember = await findGuildMemberByUid(
+          member.guild,
+          rows[j].uid,
+        );
+        adjacentRanking.push({
+          uid: rows[j].uid,
+          username: adjacentMember ? adjacentMember.user.username : "????",
+          message_count: rows[j].message_count,
+          rank: rows[j].rank,
+        });
+      }
+      memberRanking = {
+        uid: member.user.id,
+        username: member.user.username,
+        message_count: row.message_count,
+        rank: row.rank,
+      };
+    }
+  }
+
+  return {
+    fullRanking,
+    adjacentRanking,
+    memberRanking,
+  };
+};
+
 module.exports = {
   addMessage,
   removeMessage,
   fetchStats,
   replaceAllUserStats,
+  getMembersRanking,
 };
