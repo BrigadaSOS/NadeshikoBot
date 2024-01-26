@@ -4,27 +4,23 @@ const axios = require("axios");
 const { JPDB_API_KEY } = require("../../../bot-config");
 
 const wordToFormattedPitch = (wordData) => {
-  const [spelling, reading, pitchData] = wordData;
+  const [reading, pitchData] = wordData;
   const results = [];
 
   for (const pitch of pitchData) {
     let wordWithFormattedPitch = reading[0];
     let previousPitch = pitch[0];
     for (let i = 1; i < reading.length; i += 1) {
-      if (pitch[i] === "L" && previousPitch === "H") {
+      if (previousPitch === "H" && pitch[i] === "L") {
         wordWithFormattedPitch += "╲";
-      } else if (pitch[i] === "H" && previousPitch === "L") {
-        wordWithFormattedPitch += "╱";
       }
       wordWithFormattedPitch += reading[i];
       previousPitch = pitch[i];
     }
 
     if (pitch.length > reading.length) {
-      if (pitch[pitch.length - 1] === "L" && previousPitch === "H") {
+      if (previousPitch === "H" && pitch[pitch.length - 1] === "L") {
         wordWithFormattedPitch += "╲";
-      } else if (pitch[pitch.length - 1] === "H" && previousPitch === "L") {
-        wordWithFormattedPitch += "╱";
       }
     }
 
