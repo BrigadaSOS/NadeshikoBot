@@ -4,7 +4,7 @@ const axios = require("axios");
 const { JPDB_API_KEY } = require("../../../bot-config");
 
 const wordToFormattedPitch = (wordData) => {
-  const [reading, pitchData] = wordData;
+  const [_, reading, pitchData] = wordData;
   const results = [];
 
   for (const pitch of pitchData) {
