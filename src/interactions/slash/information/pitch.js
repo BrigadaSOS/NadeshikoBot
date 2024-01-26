@@ -23,7 +23,7 @@ const wordToFormattedPitch = (wordData) => {
     if (pitch.length > reading.length) {
       if (previousPitch === "H" && pitch[pitch.length - 1] === "L") {
         wordWithFormattedPitch += "╲";
-        pitchNum = pitch.length;
+        pitchNum = reading.length;
       }
     }
 
