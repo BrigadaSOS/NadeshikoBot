@@ -6,6 +6,7 @@ const {
   TEST_GUILD_ID,
   OWNER_ID,
   NADEDB_API_KEY,
+  JPDB_API_KEY,
   DATABASE_PATH,
   TESTER_ROLE,
 } = process.env;
@@ -16,6 +17,7 @@ module.exports = {
   TEST_GUILD_ID,
   OWNER_ID,
   NADEDB_API_KEY,
+  JPDB_API_KEY,
   DATABASE_PATH,
   TESTER_ROLE,
 };
