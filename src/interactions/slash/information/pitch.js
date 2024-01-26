@@ -10,9 +10,11 @@ const wordToFormattedPitch = (wordData) => {
   for (const pitch of pitchData) {
     let wordWithFormattedPitch = reading[0];
     let previousPitch = pitch[0];
+    let pitchNum = 0;
     for (let i = 1; i < reading.length; i += 1) {
       if (previousPitch === "H" && pitch[i] === "L") {
         wordWithFormattedPitch += "╲";
+        pitchNum = i;
       }
       wordWithFormattedPitch += reading[i];
       previousPitch = pitch[i];
@@ -21,12 +23,11 @@ const wordToFormattedPitch = (wordData) => {
     if (pitch.length > reading.length) {
       if (previousPitch === "H" && pitch[pitch.length - 1] === "L") {
         wordWithFormattedPitch += "╲";
+        pitchNum = pitch.length;
       }
     }
 
-    wordWithFormattedPitch += ` ー ${pitch}`;
-
-    results.push(wordWithFormattedPitch);
+    results.push(`**[${pitchNum}]** ${wordWithFormattedPitch} ｜ ${pitch}`);
   }
 
   console.log(results);
@@ -49,6 +50,8 @@ const buildResponseBody = (query, jpdbInfo) => {
         commandOutput += `* ${formattedPitchword}\n`;
       }
     }
+  } else {
+    commandOutput += "No se ha encontrado información.";
   }
 
   const embed = new EmbedBuilder()
