@@ -3,35 +3,49 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const axios = require("axios");
 const { JPDB_API_KEY } = require("../../../bot-config");
 
-const wordToFormattedPitch = (wordData) => {
+// load pitch db
+const pitchJSON = require("../../../db_pitch.json");
+
+const jpdbWordToFormattedPitch = (wordData) => {
   const [_, reading, pitchData] = wordData;
   const results = [];
 
   for (const pitch of pitchData) {
-    let wordWithFormattedPitch = reading[0];
-    let previousPitch = pitch[0];
-    let pitchNum = 0;
-    for (let i = 1; i < reading.length; i += 1) {
-      if (previousPitch === "H" && pitch[i] === "L") {
-        wordWithFormattedPitch += "╲";
-        pitchNum = i;
-      }
-      wordWithFormattedPitch += reading[i];
-      previousPitch = pitch[i];
-    }
-
-    if (pitch.length > reading.length) {
-      if (previousPitch === "H" && pitch[pitch.length - 1] === "L") {
-        wordWithFormattedPitch += "╲";
-        pitchNum = reading.length;
-      }
-    }
-
-    results.push(`**[${pitchNum}]** ${wordWithFormattedPitch} ｜ ${pitch}`);
+    let pitchNum = pitch.lastIndexOf("H") == reading.length ? 0 : pitch.lastIndexOf("H") + 1;
+    let wordWithFormattedPitch = pitchNum === 0 ? `${reading}￣` : reading.slice(0, pitchNum) + "╲" + reading.slice(pitchNum);
+    results.push(`[${pitchNum}] ${wordWithFormattedPitch} ｜ ${pitch}`);
   }
 
   console.log(results);
   return results;
+};
+
+const jsonWordToFormattedPitch = (spelling, reading) => {
+
+  // JSON FORMAT
+  // key: `${spelling}+${reading}`
+  // values: [array of pitch data(imt), source(string)]
+
+  const key = `${spelling}+${reading}`;
+  const pitchData = (key in pitchJSON) ? pitchJSON[key] : null;
+
+  if (pitchData == null) {
+    return [[], []];
+  }
+
+  const results = [];
+  const sources = []
+
+  for (const [dictionaryName, pitches] of Object.entries(pitchJSON[key])) {
+    for (let i = 0; i < pitches.length; i++) {
+      const pitch = pitches[i]
+      let wordWithFormattedPitch = pitch === 0 ? `${reading}￣` : reading.slice(0, pitch) + "╲" + reading.slice(pitch);
+      results.push(`[${pitch}] ${wordWithFormattedPitch}`);
+      sources.push(dictionaryName);
+    }
+  }
+
+  return [sources, results];
 };
 
 const buildResponseBody = (query, jpdbInfo) => {
@@ -42,12 +56,24 @@ const buildResponseBody = (query, jpdbInfo) => {
   if (vocabulary.length > 0) {
     for (const wordData of vocabulary) {
       const [spelling, reading] = wordData;
+      console.log(spelling, reading)
 
-      const formattedPitchwords = wordToFormattedPitch(wordData);
+      const formattedPitchwords = jpdbWordToFormattedPitch(wordData);
 
-      commandOutput += `### ${spelling}［${reading}］- [jpdb](https://jpdb.io/search?q=${spelling}&lang=english):\n`;
+      commandOutput += `**${spelling}［${reading}］- [jpdb](https://jpdb.io/search?q=${spelling}&lang=english):**\n`;
       for (const formattedPitchword of formattedPitchwords) {
         commandOutput += `* ${formattedPitchword}\n`;
+      }
+
+      // custom db
+      const [jsonSources, jsonPitchWords] = jsonWordToFormattedPitch(spelling, reading);
+      let lastSource = "";
+      for (let i = 0; i < jsonSources.length; i++) {
+        if (lastSource !== jsonSources[i]) {
+          commandOutput += `\n** ${spelling}［${reading}］- ${jsonSources[i]}:**\n`;
+          lastSource = jsonSources[i];
+        }
+        commandOutput += `* ${jsonPitchWords[i]}\n`;
       }
     }
   } else {
@@ -55,7 +81,7 @@ const buildResponseBody = (query, jpdbInfo) => {
   }
 
   const embed = new EmbedBuilder()
-    .setTitle(`Información de pitch accent para: ${query}`)
+    .setTitle(`Pitch Accent de: ${query}`)
     .setDescription(commandOutput);
 
   return {
