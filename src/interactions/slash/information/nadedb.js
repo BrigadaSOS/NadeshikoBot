@@ -120,7 +120,7 @@ module.exports = {
     const query = interaction.options.getString("query");
 
     const response = await axios.post(
-      "https://api.brigadasos.xyz/api/v1/search/anime/sentence",
+      "https://api.brigadasos.xyz/api/v1/api/search/anime/sentence",
       {
         query,
         content_sort: "random",
